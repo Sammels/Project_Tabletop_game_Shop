@@ -13,17 +13,19 @@
   <body>
     <div class="container">
     <h1>{{ title }}</h1>
-    <div class="row">
-      <div class="col-8">
-        <h2>Добро пожаловать в великий магазин</h2>
-        <p>Лучшее для лучших, по лучшим ценам.</p>
-        <hr/>
-      </div>
-      <div class="col-4">
-        <h4> Директории сайта (в работе. Перед выкатом в прод изменить)</h4>
-        <p> Регистрация - <a href="/login"><b>login/</b></p>
-      </div>
-    </div>
+        <h2> Ворота Рая</h2>
+        <!--
+          Здесь будем работать с версткой
+        -->
+        <table>
+          <p> Регистрация / Вход</p>
+          <tr><td> Логин: </td><td><input name='login' type='TEXT'
+           value='Введите логин'></td></tr>
+           <tr><td>Пароль: </td><td><input name='passwrd' type='TEXT'
+           value='Введите пароль'></td></tr>
+        </table>
+        <p> После ввода жми сюда</p>
+        <p> <input value='Принять' type='SUBMIT'></p>
   </div>
 
     <!-- Option 2: Separate Popper and Bootstrap JS -->
