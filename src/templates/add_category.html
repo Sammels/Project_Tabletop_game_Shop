@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% from "_formhelpers.html" import render_field %}
+<form method=post>
+    <dl>
+        {{ render_field(form.name) }} <a href="http://127.0.0.1:5000/add-product">Add product</a>
+    </dl>
+    <p><input type=submit value=Register>
+</form>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% from "_formhelpers.html" import render_field %}
+<form method=post>
+    <dl>
+        {{ render_field(form.name) }}
+        {{ render_field(form.title) }}
+        {{ render_field(form.price) }}
+        {{ render_field(form.image) }}
+        {{ render_field(form.category) }} <a href="http://127.0.0.1:5000/add-category">Add category</a>
+        {{ render_field(form.description) }}
+        {{ render_field(form.stock) }}
+    </dl>
+    <p><input type=submit value=Register>
+</form>
+</body>
+</html>
