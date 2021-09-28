@@ -7,3 +7,4 @@ db_session = scoped_session(sessionmaker(bind=engine))
 
 BDConnector = declarative_base()
 BDConnector.query = db_session.query_property()
+

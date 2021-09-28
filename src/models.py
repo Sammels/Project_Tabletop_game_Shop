@@ -18,6 +18,9 @@ class Category(BDConnector):
     id = Column(Integer, primary_key=True)
     name = Column(String(length=60), unique=True)
 
+    def __repr__(self):
+        return f'Категория: {self.name}'
+
 
 class Product(BDConnector):
     """ Настольная игра"""
@@ -33,8 +36,9 @@ class Product(BDConnector):
     description = Column(Text(), unique=True)
     stock = Column(Boolean())
 
+    def __repr__(self):
+        return f'Наименование игры: {self.name}'
 
-if __name__ == "__main__":
-    """ Создание БД """
-    BDConnector.metadata.create_all(bind=engine)
 
+# Создание БД
+BDConnector.metadata.create_all(bind=engine)

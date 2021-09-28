@@ -1,9 +1,11 @@
-from wtforms import Form, TextField, BooleanField, StringField, IntegerField, validators, SelectMultipleField
+import typing
 
+from wtforms import Form, TextField, BooleanField, StringField, IntegerField, validators, SelectMultipleField
+from typing import Optional
 from models import Category
 
 
-def get_category():
+def get_category() -> typing.List[typing.Tuple[str, str]]:
     """ Запрос всех категорий для поля category в форме ProductForm """
     all_category = Category.query.all()
     category = [(category.name, category.name) for category in all_category]
