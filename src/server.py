@@ -2,7 +2,7 @@ import os
 
 from flask import Flask, request, render_template, redirect
 from forms import ProductForm, CategoryForm, get_category
-from db import db_session, BDConnector
+from db import db_session
 from models import Product, Category
 
 # Заводим Фласк

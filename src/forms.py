@@ -1,7 +1,6 @@
 import typing
 
 from wtforms import Form, TextField, BooleanField, StringField, IntegerField, validators, SelectMultipleField
-from typing import Optional
 from models import Category
 
 
