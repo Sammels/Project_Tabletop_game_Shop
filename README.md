@@ -13,5 +13,5 @@
 Активация окружения:
 `source venv/bin/activate`
 2. Использовать <b>pip</b> для того чтобы заинсталить необходимые библиотеки `pip3 install -r requirements.txt`
-3. В случае успеха зайти в `Main/` и запустить `python3 server.py` (Unix style) 
+3. В случае успеха зайти в `scr/` и запустить `python3 server.py` (Unix style) 
 `python server.py` - (Windows style)
