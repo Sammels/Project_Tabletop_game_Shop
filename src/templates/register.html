@@ -11,29 +11,15 @@
     <title>{{ title }}</title>
   </head>
   <body>
-    <div class="container">
-    <h1>{{ title }}</h1>
-    <div class="row">
-      <div class="col-8">
-        <h2>Добро пожаловать в великий магазин</h2>
-        <p>Лучшее для лучших, по лучшим ценам.</p>
-        <hr/>
-      </div>
-      <div class="col-4">
-        <h3> Рабочие ссылки</h3>
-        <a href="{{url_for('login')}}"> Логин</a>
-        <br/>
-        <a href="{{url_for('registration')}}"> Регистрация</a>
-        <br/>
-        <a href="{{url_for('all_product')}}"> Все товары</a>
-        <br/>
-        <a href="{{url_for('add_product')}}"> Добавить товар</a>
-        <br/>
-        <a href="{{url_for('add_category')}}"> Добавить категорию товара</a>
-
-      </div>
-    </div>
-  </div>l
+    <a href="{{url_for('index')}}"> Домой</a>
+    <h1>Регистрация</h1>
+    <form method="POST" action="">
+      {{form.hidden_tag()}}
+      {{form.login}}
+      {{form.password}}
+      {{form.submit}}
+    </form>
+    <a href="{{url_for('login')}}">Уже есть аккаунт? Логинься! </a>
 
     <!-- Option 2: Separate Popper and Bootstrap JS -->
     
