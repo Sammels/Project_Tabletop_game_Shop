@@ -1,6 +1,8 @@
+import re
 import typing
 
-from wtforms import Form, TextField, BooleanField, StringField, IntegerField, validators, SelectMultipleField
+from wtforms import Form, TextField, BooleanField, StringField, IntegerField, validators, SelectMultipleField, \
+    FileField, MultipleFileField
 from models import Category
 
 
@@ -21,7 +23,8 @@ class ProductForm(Form):
     name = StringField('Наименование настольной игры', [validators.Length(min=4, max=120)])
     title = StringField('Краткое описание настолькой игры', [validators.Length(min=6, max=240)])
     price = IntegerField('Цена', [validators.NumberRange(min=0)])
-    image = IntegerField('Изобрацения', [validators.NumberRange(min=0)])
+    image = MultipleFileField(u'Image File')
     category = SelectMultipleField('Категории (веберите один или несколько)', coerce=str)
     description = TextField('Описание')
     stock = BooleanField('В наличии')
+
