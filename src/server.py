@@ -10,13 +10,6 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
 
-# Путь страницы
-@app.route('/')
-def index() -> str:
-    # Титульник
-    page_title = "Рай Настольщика"
-    return render_template('index.html', title=page_title)
-
 
 @app.route('/add-category', methods=['GET', 'POST'])
 def add_category():
@@ -52,7 +45,7 @@ def add_product():
     return render_template('add_product.html', form=form)
 
 
-@app.route('/all-product')
+@app.route('/')
 def all_product():
     """ Рендер всех товаров"""
     products = Product.query.all()
