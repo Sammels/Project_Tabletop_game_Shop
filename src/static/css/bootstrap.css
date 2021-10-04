@@ -10,6 +10,14 @@
     color: white;
 }
 
+.footer-dawn {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	height: 300px;
+}
+
 :root {
     --bs-blue: #0d6efd;
     --bs-indigo: #6610f2;
