@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %} Главная {% endblock title %}
+{% block content %}
 {% from "_formhelpers.html" import render_field %}
 <form method=post enctype="multipart/form-data">
     <dl>
@@ -18,5 +14,4 @@
     </dl>
     <p><input type=submit value=Register>
 </form>
-</body>
-</html>
+{% endblock content %}
