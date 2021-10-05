@@ -45,7 +45,6 @@ def add_product():
             image_name = secure_filename(image.filename)
             mimetype = image.mimetype
             img = Image(img=image.read(), name=image_name, mimetype=mimetype)
-            print(img.img)
             product.image.append(img)
         for name in form.category.data:
             category = Category.query.filter_by(name=name).all()
@@ -61,12 +60,6 @@ def all_product():
     """ Рендер всех товаров"""
     products = Product.query.all()
     return render_template('all_product.html', products=products)
-
-
-@app.route('/<int:id>')
-def get_img(id):
-    img = Image.query.filter_by(id=id).first()
-    return img.img
 
 
 # Заводим через дебаг
