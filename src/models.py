@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, Table, BLOB
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, Table, BLOB, LargeBinary
 from sqlalchemy.orm import relationship, backref
 
 from db import BDConnector, engine
@@ -10,9 +10,15 @@ category_product = Table('category_product',
                          Column('product_id', Integer, ForeignKey('product.id'))
                          )
 
-image_product = Table('image_product',
+poster_product = Table('poster_product',
+                       BDConnector.metadata,
+                       Column('poster_id', Integer, ForeignKey('poster.id')),
+                       Column('product_id', Integer, ForeignKey('product.id'))
+                       )
+
+shots_product = Table('shots_product',
                       BDConnector.metadata,
-                      Column('image_id', Integer, ForeignKey('image.id')),
+                      Column('shots_id', Integer, ForeignKey('shots.id')),
                       Column('product_id', Integer, ForeignKey('product.id'))
                       )
 
@@ -36,8 +42,10 @@ class Product(BDConnector):
     name = Column(String(length=120), unique=True)
     title = Column(String(length=240), unique=True)
     price = Column(Integer())
-    image = relationship('Image', secondary=image_product,
-                         backref=backref('products', lazy=True))
+    image_poster = relationship('PosterImage', secondary=poster_product,
+                                backref=backref('products', lazy=True))
+    image_shots = relationship('ShotsImage', secondary=shots_product,
+                               backref=backref('products', lazy=True))
     category = relationship('Category', secondary=category_product,
                             backref=backref('products', lazy=True))
     description = Column(Text(), unique=True)
@@ -47,11 +55,20 @@ class Product(BDConnector):
         return f'Наименование игры: {self.name}'
 
 
-class Image(BDConnector):
-    __tablename__ = 'image'
+class PosterImage(BDConnector):
+    __tablename__ = 'poster'
 
     id = Column(Integer, primary_key=True)
-    img = Column(Text, unique=True, nullable=False)
+    img = Column(BLOB, unique=True, nullable=False)
+    name = Column(Text, nullable=False)
+    mimetype = Column(Text, nullable=False)
+
+
+class ShotsImage(BDConnector):
+    __tablename__ = 'shots'
+
+    id = Column(Integer, primary_key=True)
+    img = Column(BLOB, unique=True, nullable=False)
     name = Column(Text, nullable=False)
     mimetype = Column(Text, nullable=False)
 
