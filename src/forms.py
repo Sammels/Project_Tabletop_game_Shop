@@ -1,5 +1,9 @@
 import typing
 
+from flask_wtf import FlaskForm
+
+from wtforms.validators import DataRequired
+
 from wtforms import (
     Form,
     TextField,
@@ -8,8 +12,10 @@ from wtforms import (
     IntegerField,
     validators,
     SelectMultipleField,
+    PasswordField,
+    SubmitField,
 )
-from models import Category
+from src.models import Category, User
 
 
 def get_category() -> typing.List[typing.Tuple[str, str]]:
@@ -41,3 +47,38 @@ class ProductForm(Form):
     )
     description = TextField("Описание")
     stock = BooleanField("В наличии")
+
+
+class LoginForm(FlaskForm):
+    """Форма логинаю Наследуется от FlaskForm"""
+
+    username = StringField(
+        "Логин",
+        validators=[DataRequired()],
+        render_kw={"placeholder": "Имя пользователя"},
+    )
+    password = PasswordField(
+        "Пароль", validators=[DataRequired()], render_kw={"placeholder": "Пароль"}
+    )
+    submit = SubmitField("Подтвердить")
+
+
+# Форма регистрации
+class RegisterForm(FlaskForm):
+    username = StringField(
+        "Логин",
+        validators=[DataRequired()],
+        render_kw={"placeholder": "Имя пользователя"},
+    )
+    password = PasswordField(
+        "Пароль",
+        validators=[DataRequired()],
+        render_kw={"placeholder": "Пароль"},
+    )
+    submit = SubmitField("Регистрация")
+
+    # Проверка имени пользователя
+    def validate_username(self, username):
+        existing_user_username = User.query.filter_by(username=username.data).first()
+        if existing_user_username:
+            raise ValidationError("Это имя пользователя уже занято. Исп. другое")

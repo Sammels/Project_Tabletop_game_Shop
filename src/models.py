@@ -13,10 +13,11 @@ from sqlalchemy.orm import relationship, backref
 # Попытка в Логин
 from flask_login import UserMixin
 from flask_wtf import FlaskForm
+from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
 
-from db import BDConnector, engine
+from src.db import BDConnector, engine
 
 """ Дополнительная страница для связи Многие-ко-Многим (Категории - Продукт) """
 category_product = Table(
@@ -66,40 +67,26 @@ class User(BDConnector, UserMixin):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
-    login = Column(String(128), nullable=False, unique=True)
+    username = Column(String(128), nullable=False, unique=True)
     password = Column(String(255), nullable=False)
+    role = Column(String(40), index=True)
+
+    def set_password(self, password):
+        """Хеширование пароля"""
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        """Проверка пароля"""
+        return check_password_hash(self.password, password)
 
 
-# Форма регистрации
-class RegisterForm(FlaskForm):
-    login = StringField(
-        validators=[InputRequired(), Length(min=4, max=20)],
-        render_kw={"placeholder": "Username"},
-    )
-    password = PasswordField(
-        validators=[InputRequired(), Length(min=4, max=256)],
-        render_kw={"placeholder": "Password"},
-    )
-    submit = SubmitField("Регистрация")
+    @property
+    def is_admin(self):
+        # Проверка. Администратор ли?
+        return self.role == 'admin' and self.is_active
 
-    # Проверка имени пользователя
-    def validate_username(self, login):
-        existing_user_username = User.query.filter_by(login=login.data).first()
-        if existing_user_username:
-            raise ValidationError("Это имя пользователя уже занято. Исп. другое")
-
-
-# Форма входа
-class LoginForm(FlaskForm):
-    login = StringField(
-        validators=[InputRequired(), Length(min=4, max=20)],
-        render_kw={"placeholder": "Username"},
-    )
-    password = PasswordField(
-        validators=[InputRequired(), Length(min=4, max=256)],
-        render_kw={"placeholder": "Password"},
-    )
-    submit = SubmitField("Вход")
+    def __repr__(self):
+        return f"<Пользователь {self.username}, Роль: {self.role}>"
 
 
 # Создание БД

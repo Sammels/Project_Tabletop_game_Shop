@@ -1,17 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<a href="{{url_for('index')}}"> Домой</a>
+{% extends 'base.html' %}
+{% block title %}  {% endblock title %}
+{% block content %}
 {% from "_formhelpers.html" import render_field %}
 <form method=post>
     <dl>
         {{ render_field(form.name) }} <a href="/add-product">Add product</a>
     </dl>
-    <p><input type=submit value=Register>
+    <p><input type=submit value="Register">
 </form>
-</body>
-</html>
+{% endblock content %}
