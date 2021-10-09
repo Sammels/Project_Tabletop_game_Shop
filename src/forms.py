@@ -1,6 +1,6 @@
 import typing
 from wtforms import (Form,
-                     TextField,
+                     TextAreaField,
                      BooleanField,
                      StringField,
                      IntegerField,
@@ -32,5 +32,5 @@ class ProductForm(Form):
     image_poster = FileField('Постер')
     image_shots = MultipleFileField('Изображения')
     category = SelectMultipleField('Категории (веберите один или несколько)', coerce=str)
-    description = TextField('Описание')
+    description = TextAreaField('Описание')
     stock = BooleanField('В наличии')

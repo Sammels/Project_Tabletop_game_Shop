@@ -67,7 +67,14 @@ def add_product():
 @app.route('/')
 def all_product():
     """ Рендер всех товаров"""
-    products = Product.query.all()
+
+    q = request.args.get('q')
+    if q:
+        products = Product.query.filter(Product.name.contains(q) |
+                                        Product.title.contains(q))
+    else:
+        products = Product.query.all()
+
     return render_template('all_product.html', products=products)
 
 
