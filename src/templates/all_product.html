@@ -7,7 +7,9 @@
                 {% for product in products %}
                     <div class="col mb-5">
                         <div class="card h-100">
-                            <img class="card-img-top" src="https://my-book-shop.ru/image/product/4/1730419.jpg" alt="..."/>
+                            {% for image in product.image_poster %}
+                                <img class="card-img-top" src="{{ url_for('serve_img', img_id=image.id) }}">
+                            {% endfor %}
                             <div class="card-body p-4">
                                 <div class="text-center">
                                     <h5 class="fw-bolder">{{ product.name }}</h5>
@@ -30,5 +32,3 @@
         </div>
     </section>
 {% endblock content %}
-
-

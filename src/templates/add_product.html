@@ -1,17 +1,20 @@
 {% extends 'base.html' %}
 {% block title %} Главная {% endblock title %}
 {% block content %}
+    <div class="container">
 {% from "_formhelpers.html" import render_field %}
-<form method=post>
+<form method=post enctype="multipart/form-data">
     <dl>
         {{ render_field(form.name) }}
         {{ render_field(form.title) }}
         {{ render_field(form.price) }}
-        {{ render_field(form.image) }}
+        {{ render_field(form.image_poster) }}
+        {{ render_field(form.image_shots) }}
         {{ render_field(form.category) }} <a href="/add-category">Add category</a>
         {{ render_field(form.description) }}
         {{ render_field(form.stock) }}
     </dl>
     <p><input type=submit value=Register>
 </form>
+    </div>
 {% endblock content %}
