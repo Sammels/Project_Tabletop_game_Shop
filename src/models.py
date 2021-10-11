@@ -14,7 +14,6 @@ from sqlalchemy.orm import relationship, backref
 from flask_login import UserMixin
 from flask_wtf import FlaskForm
 from werkzeug.security import generate_password_hash, check_password_hash
-from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
 
 from src.db import BDConnector, engine
@@ -67,7 +66,7 @@ class User(BDConnector, UserMixin):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
-    username = Column(String(128), nullable=False, unique=True)
+    username = Column(String(64), nullable=False, index=True, unique=True)
     password = Column(String(255), nullable=False)
     role = Column(String(40), index=True)
 
@@ -79,11 +78,10 @@ class User(BDConnector, UserMixin):
         """Проверка пароля"""
         return check_password_hash(self.password, password)
 
-
     @property
     def is_admin(self):
         # Проверка. Администратор ли?
-        return self.role == 'admin' and self.is_active
+        return self.role == "admin" and self.is_active
 
     def __repr__(self):
         return f"<Пользователь {self.username}, Роль: {self.role}>"

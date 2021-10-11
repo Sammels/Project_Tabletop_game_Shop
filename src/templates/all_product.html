@@ -6,9 +6,20 @@
             <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
     <div class="col-4">
         <h3> Рабочие ссылки</h3>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="alert warning" role="alert">
+        {% for message in messages %}
+          {{message}} <br>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
         <a href="{{url_for('login')}}"> Логин</a>
         <br/>
         <a href="{{url_for('registration')}}"> Регистрация</a>
+        <br/>
+        <a href="{{url_for('logout')}}"> Выход</a>
         <br/>
         <a href="{{url_for('all_product')}}"> Все товары</a>
         <br/>
