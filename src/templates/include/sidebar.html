@@ -1,0 +1,10 @@
+<ul class="list-group">
+    {% for category in categories %}
+        <li class="list-group-item">
+            <a class="nav-link px-2 text-white" href="{{ url_for('search_categories', name=category.name) }}" class="nav-link"
+               aria-current="page">
+                {{ category.name }}
+            </a>
+        </li>
+    {% endfor %}
+</ul>

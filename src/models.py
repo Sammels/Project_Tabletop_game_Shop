@@ -47,7 +47,7 @@ class Product(BDConnector):
     image_shots = relationship('ShotsImage', secondary=shots_product,
                                backref=backref('products', lazy=True))
     category = relationship('Category', secondary=category_product,
-                            backref=backref('products', lazy=True))
+                            backref=backref('products', lazy='joined'))
     description = Column(Text())
     stock = Column(Boolean())
 
