@@ -86,7 +86,6 @@ def serve_img(img_id):
 @app.route('/category/<name>/')
 def search_categories(name):
     category = Category.query.filter_by(name=name).first()
-    print(category)
     if category is None:
         return redirect('/')
     else:
