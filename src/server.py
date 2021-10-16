@@ -6,7 +6,6 @@ from werkzeug.utils import secure_filename
 from forms import ProductForm, CategoryForm, get_category
 from db import db_session
 from models import Product, Category, PosterImage, ShotsImage
-from sqlalchemy.orm import joinedload, query
 
 # Заводим Фласк
 app = Flask(__name__)
@@ -84,12 +83,15 @@ def serve_img(img_id):
     return Response(img.img, mimetype=img.mimetype)
 
 
-@app.route('/<name>/')
+@app.route('/category/<name>/')
 def search_categories(name):
     category = Category.query.filter_by(name=name).first()
-    products = category.products
-
-    return render_template('all_product.html', products=products)
+    print(category)
+    if category is None:
+        return redirect('/')
+    else:
+        products = category.products
+        return render_template('all_product.html', products=products)
 
 
 @app.context_processor
