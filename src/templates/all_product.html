@@ -1,20 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-{% for product in products %}
-{{ product.name }}
-{{ product.title }}
-{{ product.price }}
-{{ product.image }}
-{% for category in product.category %}
-{{ category.name }}
-{% endfor %}
-{{ product.description }}
-{{ product.stock }}
-{% endfor %}
-</body>
-</html>
+{% extends 'base.html' %}
+{% block title %}  {% endblock title %}
+{% block content %}
+    <section class="py-5">
+        <div class="container px-4 px-lg-5 mt-5">
+            <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+    <div class="col-4">
+        <h3> Рабочие ссылки</h3>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="alert warning" role="alert">
+        {% for message in messages %}
+          {{message}} <br>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+        <a href="{{url_for('login')}}"> Логин</a>
+        <br/>
+        <a href="{{url_for('registration')}}"> Регистрация</a>
+        <br/>
+        <a href="{{url_for('logout')}}"> Выход</a>
+        <br/>
+        <a href="{{url_for('all_product')}}"> Все товары</a>
+        <br/>
+        <a href="{{url_for('add_product')}}"> Добавить товар</a>
+        <br/>
+        <a href="{{url_for('add_category')}}"> Добавить категорию товара</a>
+
+    </div>
+                {% for product in products %}
+                    <div class="col mb-5">
+                        <div class="card h-100">
+                            <img class="card-img-top" src="https://my-book-shop.ru/image/product/4/1730419.jpg" alt="..."/>
+                            <div class="card-body p-4">
+                                <div class="text-center">
+                                    <h5 class="fw-bolder">{{ product.name }}</h5>
+                                    <h5 class="fw-bolder">{{ product.title }}</h5>
+                                    {{ product.price }} руб.
+                                </div>
+                            </div>
+                            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                                <div class="text-center"><a class="btn btn-outline-dark mt-auto"
+                                                            href="#">
+                                    Подробнее</a></div>
+                                <div class="text-center"><a class="btn btn-outline-dark mt-auto"
+                                                            href="#">
+                                    Добавить в корзину</a></div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+{% endblock content %}
+
+

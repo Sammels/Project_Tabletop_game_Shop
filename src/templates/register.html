@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}  {% endblock title %}
+{% block content %}
+    <section class="py-5">
+        <div class="container px-4 px-lg-5 mt-5">
+    <title>{{ title }}</title>
+  </head>
+  <body>
+    <a href="{{url_for('all_product')}}"> Главная</a>
+    <h1>Регистрация</h1>
+    <form method="POST" action="">
+      {{form.hidden_tag()}}
+      <p>
+        {{form.username.label}}<br>
+        {{form.username}}
+      </p>
+      <p>
+        {{form.password.label}}<br>
+        {{form.password}}
+      </p>
+      <p>{{form.submit}}</p>
+    </form>
+    <a href="{{url_for('login')}}">Уже есть аккаунт? Логинься! </a>
+        </div>
+    </section>
+{% endblock content %}
+

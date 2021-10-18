@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %} Главная {% endblock title %}
+{% block content %}
 {% from "_formhelpers.html" import render_field %}
 <form method=post>
     <dl>
@@ -12,11 +8,10 @@
         {{ render_field(form.title) }}
         {{ render_field(form.price) }}
         {{ render_field(form.image) }}
-        {{ render_field(form.category) }} <a href="/add-category">Add category</a>
+        {{ render_field(form.category) }} <a href={{url_for("add_category")}}>Add category</a>
         {{ render_field(form.description) }}
         {{ render_field(form.stock) }}
     </dl>
     <p><input type=submit value=Register>
 </form>
-</body>
-</html>
+{% endblock content %}

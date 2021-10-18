@@ -15,3 +15,9 @@
 2. Использовать <b>pip</b> для того чтобы заинсталить необходимые библиотеки `pip3 install -r requirements.txt`
 3. В случае успеха зайти в `scr/` и запустить `python3 server.py` (Unix style) 
 `python server.py` - (Windows style)
+
+## 07.10.2021 Произведен рефактор
+Приложение запускать из директории `Project_Tabletop_game_Shop`
+
+Вводить: `export FLASK_APP=src && export FLASK_ENV=development && flask run
+`
