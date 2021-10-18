@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from sqlalchemy import (
     Column,
     Integer,
@@ -8,6 +9,9 @@ from sqlalchemy import (
     Table,
     UniqueConstraint,
 )
+=======
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, Table, BLOB, LargeBinary
+>>>>>>> refs/remotes/origin/main
 from sqlalchemy.orm import relationship, backref
 
 # Попытка в Логин
@@ -25,6 +29,18 @@ category_product = Table(
     Column("category_id", Integer, ForeignKey("category.id")),
     Column("product_id", Integer, ForeignKey("product.id")),
 )
+
+poster_product = Table('poster_product',
+                       BDConnector.metadata,
+                       Column('poster_id', Integer, ForeignKey('poster.id')),
+                       Column('product_id', Integer, ForeignKey('product.id'))
+                       )
+
+shots_product = Table('shots_product',
+                      BDConnector.metadata,
+                      Column('shots_id', Integer, ForeignKey('shots.id')),
+                      Column('product_id', Integer, ForeignKey('product.id'))
+                      )
 
 
 class Category(BDConnector):
@@ -48,11 +64,21 @@ class Product(BDConnector):
     name = Column(String(length=120), unique=True)
     title = Column(String(length=240), unique=True)
     price = Column(Integer())
+<<<<<<< HEAD
     image = Column(Integer())
     category = relationship(
         "Category", secondary=category_product, backref=backref("products", lazy=True)
     )
     description = Column(Text(), unique=True)
+=======
+    image_poster = relationship('PosterImage', secondary=poster_product,
+                                backref=backref('products', lazy=True))
+    image_shots = relationship('ShotsImage', secondary=shots_product,
+                               backref=backref('products', lazy=True))
+    category = relationship('Category', secondary=category_product,
+                            backref=backref('products', lazy=True))
+    description = Column(Text())
+>>>>>>> refs/remotes/origin/main
     stock = Column(Boolean())
 
     def __repr__(self):
@@ -84,6 +110,24 @@ class User(BDConnector, UserMixin):
 
     def __repr__(self):
         return f"<Пользователь {self.username}, Роль: {self.role}>"
+
+
+class PosterImage(BDConnector):
+    __tablename__ = 'poster'
+
+    id = Column(Integer, primary_key=True)
+    img = Column(BLOB, unique=True, nullable=False)
+    name = Column(Text, nullable=False)
+    mimetype = Column(Text, nullable=False)
+
+
+class ShotsImage(BDConnector):
+    __tablename__ = 'shots'
+
+    id = Column(Integer, primary_key=True)
+    img = Column(BLOB, unique=True, nullable=False)
+    name = Column(Text, nullable=False)
+    mimetype = Column(Text, nullable=False)
 
 
 # Создание БД

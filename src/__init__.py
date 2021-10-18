@@ -119,6 +119,7 @@ def create_app():
     @app.route("/admin")
     @login_required
     def admin_index():
+        """Админ"""
         if current_user.is_admin:
             return "Страница администратора"
         else:
