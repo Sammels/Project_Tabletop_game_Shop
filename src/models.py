@@ -78,7 +78,6 @@ class User(BDConnector, UserMixin):
         """Проверка пароля"""
         return check_password_hash(self.password, password)
 
-    @property
     def is_admin(self):
         # Проверка. Администратор ли?
         return self.role == "admin" and self.is_active

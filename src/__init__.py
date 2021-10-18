@@ -122,6 +122,6 @@ def create_app():
         if current_user.is_admin:
             return "Страница администратора"
         else:
-            return " Не админ"
+            return "Не админ"
 
     return app
