@@ -139,12 +139,23 @@ def create_app():
         flash("Не очень успешный вход")
         return redirect(url_for("login"))
 
-    @app.route("/product_id", methods=["GET", "POST"])
-    def product_view_id():
+    @app.route("/about_prod", methods=["GET", "POST"])
+    def about_product():
         """Функция страницы товара"""
         title = "Страница товара"
-        product_information = Product.query.filter(Product.id).all()
-        return render_template("product_id.html", product_information=product_information,title=title)
+        product_information = Product.query.order_by(Product.id).all()
+        return render_template("product.html", product_information=product_information,title=title)
+    
+
+    @app.route("/about_prod/<int:id>")
+    def about_product_id(id):
+        """
+            Запрос ID
+        """
+        product = Product.query.get(id)
+        return render_template("product_id.html", product=product)
+
+
 
     @app.route("/logout")
     def logout():

@@ -1,10 +1,18 @@
 {% extends 'base.html' %}
-{% block title %}  {% endblock title %}
 {% block content %}
 
-<h1>Оба иди сюда</h1>
-
-<div class="text-left">
-    {{ product_information }}
+{% block title %}
+{{product.title}}
+{% endblock title %}
+<div class="container mt-5">
+    <h1>{{product.title}}</h1>
+    <div class="alert alert-info">
+        <h2>Наименование продукта: {{ product.name }}</h2>
+        <p>Категория продукта: {{product.category}}
+        <p>Описание продукта: {{product.description}}</p>
+        <p><b>Цена: {{product.price}} руб.</b></p>
+        <a href="#"class="btn btn-warning">В корзину</a>
+    </div>
+    
 </div>                        
 {% endblock content %}
