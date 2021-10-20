@@ -1,14 +1,11 @@
 import os
 
-from flask import Flask, request, render_template, redirect, Response
+from flask import Flask, request, render_template, redirect, Response, flash
 from werkzeug.utils import secure_filename
 
 from forms import ProductForm, CategoryForm, get_category
 from db import db_session
 from models import Product, Category, PosterImage, ShotsImage
-
-from PIL import Image as Img
-import io
 
 # Заводим Фласк
 app = Flask(__name__)
@@ -84,6 +81,23 @@ def serve_img(img_id):
     if not img:
         return 'Img Not Found!', 404
     return Response(img.img, mimetype=img.mimetype)
+
+
+@app.route('/category/<name>/')
+def search_categories(name):
+    category = Category.query.filter_by(name=name).first()
+    if category is None:
+        flash('Категория не найдена')
+        return redirect('/')
+    else:
+        products = category.products
+        return render_template('all_product.html', products=products)
+
+
+@app.context_processor
+def all_categories():
+    categories = Category.query.all()
+    return dict(categories=categories)
 
 
 # Заводим через дебаг

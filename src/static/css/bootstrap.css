@@ -5349,9 +5349,9 @@ textarea.form-control-lg {
 }
 
 .alert-warning {
-    color: #664d03;
-    background-color: #fff3cd;
-    border-color: #ffecb5;
+    color: #ffffff;
+    background-color: #212529;
+    border-color: #212529;
 }
 
 .alert-warning .alert-link {
@@ -11848,5 +11848,6 @@ textarea.form-control-lg {
         display: none !important;
     }
 }
+
 
 /*# sourceMappingURL=bootstrap.css.map */
