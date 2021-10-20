@@ -1,20 +1,32 @@
 {% extends 'base.html' %}
 {% block title %} Главная {% endblock title %}
 {% block content %}
+<<<<<<< HEAD
+=======
     <div class="container">
+>>>>>>> refs/remotes/origin/main
 {% from "_formhelpers.html" import render_field %}
 <form method=post enctype="multipart/form-data">
     <dl>
         {{ render_field(form.name) }}
         {{ render_field(form.title) }}
         {{ render_field(form.price) }}
+<<<<<<< HEAD
+        {{ render_field(form.image) }}
+        {{ render_field(form.category) }} <a href={{url_for("add_category")}}>Add category</a>
+=======
         {{ render_field(form.image_poster) }}
         {{ render_field(form.image_shots) }}
         {{ render_field(form.category) }} <a href="/add-category">Add category</a>
+>>>>>>> refs/remotes/origin/main
         {{ render_field(form.description) }}
         {{ render_field(form.stock) }}
     </dl>
     <p><input type=submit value=Register>
 </form>
+<<<<<<< HEAD
+{% endblock content %}
+=======
     </div>
 {% endblock content %}
+>>>>>>> refs/remotes/origin/main
