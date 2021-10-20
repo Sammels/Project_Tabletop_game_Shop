@@ -1,35 +1,25 @@
 import typing
-<<<<<<< HEAD
 
 from flask_wtf import FlaskForm
 
 from wtforms.validators import DataRequired
 
+
+from src.models import Category
+
 from wtforms import (
     Form,
-    TextField,
+    TextAreaField,
     BooleanField,
     StringField,
     IntegerField,
     validators,
     SelectMultipleField,
+    FileField,
+    MultipleFileField,
     PasswordField,
     SubmitField,
 )
-from src.models import Category, User
-=======
-from wtforms import (Form,
-                     TextAreaField,
-                     BooleanField,
-                     StringField,
-                     IntegerField,
-                     validators,
-                     SelectMultipleField,
-                     FileField,
-                     MultipleFileField
-                     )
-from models import Category
->>>>>>> refs/remotes/origin/main
 
 
 def get_category() -> typing.List[typing.Tuple[str, str]]:
@@ -46,7 +36,6 @@ class CategoryForm(Form):
 
 
 class ProductForm(Form):
-<<<<<<< HEAD
     """Форма добавления Настольной игры"""
 
     name = StringField(
@@ -56,11 +45,12 @@ class ProductForm(Form):
         "Краткое описание настолькой игры", [validators.Length(min=6, max=240)]
     )
     price = IntegerField("Цена", [validators.NumberRange(min=0)])
-    image = IntegerField("Изобрацения", [validators.NumberRange(min=0)])
+    image_poster = FileField("Постер")
+    image_shots = MultipleFileField("Изображения")
     category = SelectMultipleField(
-        "Категории (веберите один или несколько)", coerce=str
+        "Категории (выберите один или несколько)", coerce=str
     )
-    description = TextField("Описание")
+    description = TextAreaField("Описание")
     stock = BooleanField("В наличии")
 
 
@@ -93,18 +83,7 @@ class RegisterForm(FlaskForm):
     submit = SubmitField("Регистрация")
 
     # # Проверка имени пользователя
-    # def validate_username(self, username):
-    #     existing_user_username = User.query.filter_by(username=username.data).first()
-    #     if existing_user_username:
-    #         raise ValidationError("Это имя пользователя уже занято. Исп. другое")
-=======
-    """ Форма добавления Настольной игры"""
-    name = StringField('Наименование настольной игры', [validators.Length(min=4, max=120)])
-    title = StringField('Краткое описание настолькой игры', [validators.Length(min=6, max=240)])
-    price = IntegerField('Цена', [validators.NumberRange(min=0)])
-    image_poster = FileField('Постер')
-    image_shots = MultipleFileField('Изображения')
-    category = SelectMultipleField('Категории (веберите один или несколько)', coerce=str)
-    description = TextAreaField('Описание')
-    stock = BooleanField('В наличии')
->>>>>>> refs/remotes/origin/main
+    def validate_username(self, username):
+        existing_user_username = User.query.filter_by(username=username.data).first()
+        if existing_user_username:
+            raise ValidationError("Это имя пользователя уже занято. Исп. другое")
