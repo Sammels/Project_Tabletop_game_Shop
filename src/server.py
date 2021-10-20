@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, request, render_template, redirect, Response
+from flask import Flask, request, render_template, redirect, Response, flash
 from werkzeug.utils import secure_filename
 
 from forms import ProductForm, CategoryForm, get_category
@@ -87,6 +87,7 @@ def serve_img(img_id):
 def search_categories(name):
     category = Category.query.filter_by(name=name).first()
     if category is None:
+        flash('Категория не найдена')
         return redirect('/')
     else:
         products = category.products

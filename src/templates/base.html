@@ -13,9 +13,26 @@
 <body>
 {% include 'include/header.html' %}
 <div class="container px-4 px-lg-5 mt-5">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <strong>{{ message }}</strong>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
     <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
-        {% include 'include/sidebar.html' %}
 
+        {% include 'include/sidebar.html' %}
         {% block content %}
 
         {% endblock content %}
