@@ -32,18 +32,16 @@ def create_app():
     def load_user(user_id):
         return User.query.get(user_id)
 
-    @app.route("/add-category", methods=["GET", "POST"])
+    @app.route('/admin/add-category/', methods=['GET', 'POST'])
     def add_category():
-        """
-        Добавление категорий в БД
-        """
+        """Добавление категорий в БД"""
         form = CategoryForm(request.form)
-        if request.method == "POST" and form.validate():
+        if request.method == 'POST' and form.validate():
             category = Category(name=form.name.data)
             db_session.add(category)
             db_session.commit()
-            return redirect(url_for("add_category"))
-        return render_template("add_category.html", form=form)
+            return redirect('/admin/add-category/')
+        return render_template('add_category.html', form=form)
 
     @app.route("/add-product", methods=["GET", "POST"])
     def add_product():
