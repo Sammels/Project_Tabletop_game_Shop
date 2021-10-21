@@ -1,9 +1,9 @@
 import typing
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField
 from wtforms.validators import DataRequired
 from wtforms import (
     Form,
-    TextField,
     BooleanField,
     StringField,
     IntegerField,
@@ -11,6 +11,8 @@ from wtforms import (
     SelectMultipleField,
     PasswordField,
     SubmitField,
+    MultipleFileField,
+    TextAreaField
 )
 from .models import Category
 
@@ -29,15 +31,15 @@ class CategoryForm(Form):
 
 
 class ProductForm(Form):
-    """Форма добавления Настольной игры"""
-
-    name = StringField("Наименование настольной игры", [validators.Length(min=4, max=120)])
-    title = StringField("Краткое описание настолькой игры", [validators.Length(min=6, max=240)])
-    price = IntegerField("Цена", [validators.NumberRange(min=0)])
-    image = IntegerField("Изобрацения", [validators.NumberRange(min=0)])
-    category = SelectMultipleField("Категории (веберите один или несколько)", coerce=str)
-    description = TextField("Описание")
-    stock = BooleanField("В наличии")
+    """ Форма добавления Настольной игры"""
+    name = StringField('Наименование настольной игры', [validators.Length(min=4, max=120)])
+    title = StringField('Краткое описание настолькой игры', [validators.Length(min=6, max=240)])
+    price = IntegerField('Цена', [validators.NumberRange(min=0)])
+    image_poster = FileField('Постер')
+    image_shots = MultipleFileField('Изображения')
+    category = SelectMultipleField('Категории (веберите одну или несколько)', coerce=str)
+    description = TextAreaField('Описание')
+    stock = BooleanField('В наличии')
 
 
 class LoginForm(FlaskForm):

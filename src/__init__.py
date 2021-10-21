@@ -43,11 +43,9 @@ def create_app():
             return redirect('/admin/add-category/')
         return render_template('add_category.html', form=form)
 
-    @app.route("/add-product", methods=["GET", "POST"])
+    @app.route('/admin/add-product/', methods=['GET', 'POST'])
     def add_product():
-        """
-        Добавление настольной игры в БД
-        """
+        """Добавление настольной игры в БД"""
         form = ProductForm(request.form)
         form.category.choices = get_category()
         if request.method == 'POST' and form.validate():
@@ -74,7 +72,7 @@ def create_app():
                 product.category.append(category[0])
             db_session.add(product)
             db_session.commit()
-            return redirect('/add-product')
+            return redirect('/admin/add-product/')
         return render_template('add_product.html', form=form)
 
     @app.route('/')
