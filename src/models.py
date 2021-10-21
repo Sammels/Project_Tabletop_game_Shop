@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from sqlalchemy import (
     Column,
     Integer,
@@ -7,20 +6,12 @@ from sqlalchemy import (
     Boolean,
     ForeignKey,
     Table,
-    UniqueConstraint,
+    BLOB
 )
-=======
-from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, Table, BLOB, LargeBinary
->>>>>>> refs/remotes/origin/main
 from sqlalchemy.orm import relationship, backref
-
-# Попытка в Логин
 from flask_login import UserMixin
-from flask_wtf import FlaskForm
 from werkzeug.security import generate_password_hash, check_password_hash
-from wtforms.validators import InputRequired, Length, ValidationError
-
-from src.db import BDConnector, engine
+from .db import BDConnector, engine
 
 """ Дополнительная страница для связи Многие-ко-Многим (Категории - Продукт) """
 category_product = Table(
@@ -64,21 +55,15 @@ class Product(BDConnector):
     name = Column(String(length=120), unique=True)
     title = Column(String(length=240), unique=True)
     price = Column(Integer())
-<<<<<<< HEAD
     image = Column(Integer())
     category = relationship(
         "Category", secondary=category_product, backref=backref("products", lazy=True)
     )
     description = Column(Text(), unique=True)
-=======
     image_poster = relationship('PosterImage', secondary=poster_product,
                                 backref=backref('products', lazy=True))
     image_shots = relationship('ShotsImage', secondary=shots_product,
                                backref=backref('products', lazy=True))
-    category = relationship('Category', secondary=category_product,
-                            backref=backref('products', lazy='joined'))
-    description = Column(Text())
->>>>>>> refs/remotes/origin/main
     stock = Column(Boolean())
 
     def __repr__(self):

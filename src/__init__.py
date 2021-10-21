@@ -8,12 +8,14 @@ from flask_login import (
     logout_user,
     current_user,
 )
-from src.forms import ProductForm, CategoryForm, get_category
+from werkzeug.utils import secure_filename
+
+from .forms import ProductForm, CategoryForm, get_category
 
 # Удалить потом flask_bcrypt
-from src.db import db_session
-from src.models import Product, Category, User
-from src.forms import LoginForm, RegisterForm
+from .db import db_session
+from .models import Product, Category, User, PosterImage, ShotsImage
+from .forms import LoginForm, RegisterForm
 
 
 # Заводим Фласк
@@ -50,28 +52,59 @@ def create_app():
         """
         form = ProductForm(request.form)
         form.category.choices = get_category()
-        if request.method == "POST" and form.validate():
-            product = Product(
-                name=form.name.data,
-                title=form.title.data,
-                price=form.price.data,
-                image=form.image.data,
-                description=form.description.data,
-                stock=form.stock.data,
-            )
+        if request.method == 'POST' and form.validate():
+            product = Product(name=form.name.data,
+                              title=form.title.data,
+                              price=form.price.data,
+                              description=form.description.data,
+                              stock=form.stock.data)
+
+            poster = request.files[form.image_poster.name]
+            poster_name = secure_filename(poster.filename)
+            mimetype_poster = poster.mimetype
+            img_poster = PosterImage(img=poster.read(), name=poster_name, mimetype=mimetype_poster)
+            product.image_poster.append(img_poster)
+
+            shots = request.files.getlist(form.image_shots.name)
+            for image in shots:
+                image_name = secure_filename(image.filename)
+                mimetype = image.mimetype
+                img = ShotsImage(img=image.read(), name=image_name, mimetype=mimetype)
+                product.image_shots.append(img)
             for name in form.category.data:
                 category = Category.query.filter_by(name=name).all()
                 product.category.append(category[0])
             db_session.add(product)
             db_session.commit()
-            return redirect(url_for("add_product"))
-        return render_template("add_product.html", form=form)
+            return redirect('/add-product')
+        return render_template('add_product.html', form=form)
 
-    @app.route("/")
+    @app.route('/')
     def all_product():
-        """Рендер всех товаров"""
-        products = Product.query.all()
-        return render_template("all_product.html", products=products)
+        """ Рендер всех товаров"""
+
+        q = request.args.get('q')
+        if q:
+            products = Product.query.filter(Product.name.contains(q) |
+                                            Product.title.contains(q))
+        else:
+            products = Product.query.all()
+        return render_template('all_product.html', products=products)
+
+    @app.route('/category/<name>/')
+    def search_categories(name):
+        category = Category.query.filter_by(name=name).first()
+        if category is None:
+            flash('Категория не найдена')
+            return redirect('/')
+        else:
+            products = category.products
+            return render_template('all_product.html', products=products)
+
+    @app.context_processor
+    def all_categories():
+        categories = Category.query.all()
+        return dict(categories=categories)
 
     @app.route("/login", methods=["GET", "POST"])
     def login() -> str:
