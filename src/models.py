@@ -73,7 +73,8 @@ class Product(BDConnector):
     category = relationship(
         "Category", secondary=category_product, backref=backref("products", lazy=True)
     )
-    description = Column(Text())
+
+    description = Column(Text(), unique=True)
     stock = Column(Boolean())
 
     def __repr__(self):

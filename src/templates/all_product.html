@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}  {% endblock title %}
 {% block content %}
+
 <section class="py-5">
     <div class="container px-4 px-lg-5 mt-5">
         <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
@@ -26,6 +27,7 @@
                                 <h5 class="fw-bolder">{{ product.name }}</h5>
                                 <h5 class="fw-bolder">{{ product.title }}</h5>
                                 {{ product.price }} руб.
+
                             </div>
                         </div>
                         <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
@@ -37,10 +39,10 @@
                                 Добавить в корзину</a></div>
                         </div>
                     </div>
+
                 </div>
             {% endfor %}
         </div>
     </div>
 </section>
 {% endblock content %}
-
