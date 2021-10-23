@@ -57,8 +57,8 @@ def add_product():
             product.category.append(category[0])
         db_session.add(product)
         db_session.commit()
-        return redirect('/add-product')
-    return render_template('add_product.html', form=form)
+        return redirect(url_for('add-product'))
+    return render_template(url_for('add_product'), form=form)
 
 
 @app.route('/')

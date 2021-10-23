@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, flash, request, render_template, redirect, url_for
+from flask import Flask, flash, request, render_template, redirect, url_for, Response
 from flask_login import (
     LoginManager,
     login_user,
@@ -8,13 +8,15 @@ from flask_login import (
     logout_user,
     current_user,
 )
+from werkzeug.utils import secure_filename
 from src.forms import ProductForm, CategoryForm, get_category
 
 # Удалить потом flask_bcrypt
 from src.db import db_session
-from src.models import Product, Category, User
+from src.models import Product, Category, User, PosterImage, ShotsImage
 from src.forms import LoginForm, RegisterForm
-
+from PIL import Image as Img
+import io
 
 # Заводим Фласк
 def create_app():
@@ -40,14 +42,13 @@ def create_app():
             category = Category(name=form.name.data)
             db_session.add(category)
             db_session.commit()
+            flash("Успешно добавили")
             return redirect(url_for("add_category"))
         return render_template("add_category.html", form=form)
 
     @app.route("/add-product", methods=["GET", "POST"])
     def add_product():
-        """
-        Добавление настольной игры в БД
-        """
+        # Добавление настольной игры в БД
         form = ProductForm(request.form)
         form.category.choices = get_category()
         if request.method == "POST" and form.validate():
@@ -55,10 +56,24 @@ def create_app():
                 name=form.name.data,
                 title=form.title.data,
                 price=form.price.data,
-                image=form.image.data,
                 description=form.description.data,
                 stock=form.stock.data,
             )
+
+            poster = request.files[form.image_poster.name]
+            poster_name = secure_filename(poster.filename)
+            mimetype_poster = poster.mimetype
+            img_poster = PosterImage(
+                img=poster.read(), name=poster_name, mimetype=mimetype_poster
+            )
+            product.image_poster.append(img_poster)
+
+            shots = request.files.getlist(form.image_shots.name)
+            for image in shots:
+                image_name = secure_filename(image.filename)
+                mimetype = image.mimetype
+                img = ShotsImage(img=image.read(), name=image_name, mimetype=mimetype)
+                product.image_shots.append(img)
             for name in form.category.data:
                 category = Category.query.filter_by(name=name).all()
                 product.category.append(category[0])
@@ -70,8 +85,23 @@ def create_app():
     @app.route("/")
     def all_product():
         """Рендер всех товаров"""
-        products = Product.query.all()
+
+        q = request.args.get("q")
+        if q:
+            products = Product.query.filter(
+                Product.name.contains(q) | Product.title.contains(q)
+            )
+        else:
+            products = Product.query.all()
+
         return render_template("all_product.html", products=products)
+
+    @app.route("/img/<int:img_id>")
+    def serve_img(img_id):
+        img = PosterImage.query.filter_by(id=img_id).first()
+        if not img:
+            return "Img Not Found!", 404
+        return Response(img.img, mimetype=img.mimetype)
 
     @app.route("/login", methods=["GET", "POST"])
     def login() -> str:
@@ -82,7 +112,6 @@ def create_app():
         form = LoginForm()
         return render_template("login.html", form=form, title=title)
 
-    # Переделать
     @app.route("/reg", methods=["GET", "POST"])
     def registration() -> str:
         """Форма регистрации"""
@@ -96,18 +125,37 @@ def create_app():
 
         return render_template("register.html", form=form)
 
-    @app.route('/process-login', methods=['POST'])
+    @app.route("/process-login", methods=["POST"])
     def process_login():
+        """Процесс логина"""
         form = LoginForm()
 
         if form.validate_on_submit():
             user = User.query.filter(User.username == form.username.data).first()
             if user and user.check_password(form.password.data):
                 login_user(user)
-                flash('Успешный вход')
-                return redirect(url_for('all_product'))
-        flash('Не очень успещный вход')
+                flash("Успешный вход")
+                return redirect(url_for("all_product"))
+        flash("Не очень успешный вход")
         return redirect(url_for("login"))
+
+    @app.route("/about_prod", methods=["GET", "POST"])
+    def about_product():
+        """Функция страницы товара"""
+        title = "Страница товара"
+        product_information = Product.query.order_by(Product.id).all()
+        return render_template("product.html", product_information=product_information,title=title)
+    
+
+    @app.route("/about_prod/<int:id>")
+    def about_product_id(id):
+        """
+            Запрос ID
+        """
+        product = Product.query.get(id)
+        return render_template("product_id.html", product=product)
+
+
 
     @app.route("/logout")
     def logout():

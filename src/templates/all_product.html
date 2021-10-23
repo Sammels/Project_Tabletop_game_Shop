@@ -1,65 +1,48 @@
 {% extends 'base.html' %}
 {% block title %}  {% endblock title %}
 {% block content %}
-    <section class="py-5">
-        <div class="container px-4 px-lg-5 mt-5">
-            <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
-                <<<<<<< HEAD
-                <div class="col-4">
-                    <h3> Рабочие ссылки</h3>
-                    <a href="{{ url_for('login') }}"> Логин</a>
-                    <br/>
-                    <a href="{{ url_for('registration') }}"> Регистрация</a>
-                    <br/>
-                    <a href="{{ url_for('logout') }}"> Выход</a>
-                    <br/>
-                    <a href="{{ url_for('all_product') }}"> Все товары</a>
-                    <br/>
-                    <a href="{{ url_for('add_product') }}"> Добавить товар</a>
-                    <br/>
-                    <a href="{{ url_for('add_category') }}"> Добавить категорию товара</a>
-                </div>
-                {% for product in products %}
-                    <div class="col mb-5">
-                        <div class="card h-100">
-                            {% for image in product.image_poster %}
-                                <img class="card-img-top" src="{{ url_for('serve_img', img_id=image.id) }}">
-                            {% endfor %}
-                            >>>>>>> refs/remotes/origin/main
-                            <div class="card-body p-4">
-                                <div class="text-center">
-                                    <h5 class="fw-bolder">{{ product.name }}</h5>
-                                    <h5 class="fw-bolder">{{ product.title }}</h5>
-                                    {{ product.price }} руб.
-                                </div>
-                            </div>
-                            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                                <div class="text-center"><a class="btn btn-outline-dark mt-auto"
-                                                            href="#">Подроднее</a></div>
-                                <div class="text-center"><a class="btn btn-outline-dark mt-auto"
-                                                            href="#">
-                                    Добавить в корзину</a></div>
+
+<section class="py-5">
+    <div class="container px-4 px-lg-5 mt-5">
+        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+<div class="col-4">
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert warning" role="alert">
+    {% for message in messages %}
+      {{message}} <br>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
+</div>
+            {% for product in products %}
+                <div class="col mb-5">
+                    <div class="card h-100">
+                        {% for image in product.image_poster %}
+                            <img class="card-img-top" src="{{ url_for('serve_img', img_id=image.id) }}">
+                        {% endfor %}
+                        <div class="card-body p-4">
+                            <div class="text-center">
+                                <h5 class="fw-bolder">{{ product.name }}</h5>
+                                <h5 class="fw-bolder">{{ product.title }}</h5>
+                                {{ product.price }} руб.
+
                             </div>
                         </div>
+                        <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                            <div class="text-center"><a class="btn btn-outline-dark mt-auto"
+                                                        href="/about_prod/{{product.id}}">
+                                Подробнее</a></div>
+                            <div class="text-center"><a class="btn btn-outline-dark mt-auto"
+                                                        href="#">
+                                Добавить в корзину</a></div>
+                        </div>
                     </div>
-                {% endfor %}
-                <div class="card-body p-4">
-                    <div class="text-center">
-                        <h5 class="fw-bolder">{{ product.name }}</h5>
-                        <h5 class="fw-bolder">{{ product.title }}</h5>
-                        {{ product.price }} руб.
-                    </div>
+
                 </div>
-                <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                    <div class="text-center"><a class="btn btn-outline-dark mt-auto"
-                                                href="#">Подроднее</a></div>
-                    <div class="text-center">
-                        <a class="btn btn-outline-dark mt-auto" href="#">
-                            Добавить в корзину
-                        </a>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
-    </section>
+    </div>
+</section>
 {% endblock content %}
