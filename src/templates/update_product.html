@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %} Главная {% endblock title %}
+{% block content %}
+    <div class="container">
+        <form method=POST enctype="multipart/form-data">
+            <dl>
+
+                {{ form.name() }}
+                {{ form.title() }}
+                {{ form.price() }}
+                {% for image in product.image_poster %}
+                    <img class="card-img-top" src="{{ url_for('get_poster_img', img_id=image.id) }}">
+                {% endfor %}
+                {{ form.image_poster() }}
+                {% for image in product.image_shots %}
+                    <img class="card-img-top" src="{{ url_for('get_shots_img', img_id=image.id) }}">
+                {% endfor %}
+                {{ form.image_shots() }}
+                {% for category in product.category %}
+                    {{ category }}
+                {% endfor %}
+                {{ form.category() }}
+                {{ form.description() }}
+                {{ form.stock() }}
+            </dl>
+            <p><input type=submit value=Register>
+        </form>
+    </div>
+{% endblock content %}

@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, flash, request, render_template, redirect, url_for
+from flask import Flask, flash, request, render_template, redirect, url_for, Response
 from flask_login import (
     LoginManager,
     login_user,
@@ -33,6 +33,7 @@ def create_app():
         return User.query.get(user_id)
 
     @app.route('/admin/add-category/', methods=['GET', 'POST'])
+    @login_required
     def add_category():
         """Добавление категорий в БД"""
         form = CategoryForm(request.form)
@@ -44,6 +45,7 @@ def create_app():
         return render_template('add_category.html', form=form)
 
     @app.route('/admin/add-product/', methods=['GET', 'POST'])
+    @login_required
     def add_product():
         """Добавление настольной игры в БД"""
         form = ProductForm(request.form)
@@ -97,6 +99,20 @@ def create_app():
             products = category.products
             return render_template('all_product.html', products=products)
 
+    @app.route('/admin/')
+    @login_required
+    def admin():
+        products = Product.query.all()
+        return render_template('admin.html', products=products)
+
+    @app.route('/admin/product-delete/<int:product_id>')
+    @login_required
+    def product_delete(product_id):
+        product = Product.query.filter(Product.id.contains(product_id)).first()
+        db_session.delete(product)
+        db_session.commit()
+        return redirect('/admin/')
+
     @app.context_processor
     def all_categories():
         categories = Category.query.all()
@@ -145,13 +161,73 @@ def create_app():
         flash("Успешно вышел")
         return redirect(url_for("all_product"))
 
-    @app.route("/admin")
-    @login_required
-    def admin_index():
-        """Админ"""
-        if current_user.is_admin:
-            return "Страница администратора"
-        else:
-            return "Не админ"
+    # TODO Подумать как сдеать одну функцию с get_poster_img и get_shots_img
+    @app.route('/poster-img/<int:img_id>/')
+    def get_poster_img(img_id):
+        """ Функция вывода изображения (Постер товара)"""
+        img = PosterImage.query.filter_by(id=img_id).first()
+        if not img:
+            return 'Img Not Found!', 404
+        return Response(img.img, mimetype=img.mimetype)
+
+    @app.route('/shots-img/<int:img_id>')
+    def get_shots_img(img_id):
+        """ Функция вывода изображения (Дополнительные снимки товара)"""
+        img = ShotsImage.query.filter_by(id=img_id).first()
+        if not img:
+            return 'Img Not Found!', 404
+        return Response(img.img, mimetype=img.mimetype)
+
+    @app.route('/admin/update-product/<int:product_id>/', methods=['GET', 'POST'])
+    def update_product(product_id):
+        """Изменение настольной игры в БД"""
+        product = Product.query.filter(Product.id.contains(product_id)).first()
+        form = ProductForm(request.form)
+        form.category.choices = get_category()
+        if request.method == 'POST' and form.validate():
+            product.name = form.name.data
+            product.title = form.title.data
+            product.price = form.price.data
+            product.description = form.description.data
+            product.stock = form.stock.data
+
+            poster = request.files[form.image_poster.name]
+            poster_name = secure_filename(poster.filename)
+            if poster_name:
+                for image in product.image_poster:
+                    image_poster_delete = PosterImage.query.filter(PosterImage.id.contains(image.id)).first()
+                    db_session.delete(image_poster_delete)
+                mimetype_poster = poster.mimetype
+                img_poster = PosterImage(img=poster.read(), name=poster_name, mimetype=mimetype_poster)
+                product.image_poster.append(img_poster)
+
+            shots_all = request.files.getlist(form.image_shots.name)
+            if shots_all[0].filename:
+                for shot in product.image_shots:
+                    image_shots_delete = ShotsImage.query.filter(ShotsImage.id.contains(shot.id)).first()
+                    db_session.delete(image_shots_delete)
+            for shots in shots_all:
+                shot_name = secure_filename(shots.filename)
+                mimetype_poster = shots.mimetype
+                img_shots = ShotsImage(img=shots.read(), name=shot_name, mimetype=mimetype_poster)
+                product.image_shots.append(img_shots)
+            if form.category.data:
+                for category in product.category:
+                    category_del = Category.query.filter(Category.id.contains(category.id)).first()
+                    db_session.delete(category_del)
+                for name in form.category.data:
+                    category = Category.query.filter_by(name=name).all()
+                    product.category.append(category[0])
+            db_session.commit()
+            return redirect(f'/admin/update-product/{product_id}')
+
+        elif request.method == 'GET':
+            form.name.data = product.name
+            form.title.data = product.title
+            form.price.data = product.price
+            form.description.data = product.description
+            form.stock.data = product.stock
+
+        return render_template('update_product.html', form=form, product=product)
 
     return app

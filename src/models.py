@@ -55,7 +55,6 @@ class Product(BDConnector):
     name = Column(String(length=120), unique=True)
     title = Column(String(length=240), unique=True)
     price = Column(Integer())
-    image = Column(Integer())
     category = relationship(
         "Category", secondary=category_product, backref=backref("products", lazy=True)
     )

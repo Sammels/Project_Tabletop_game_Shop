@@ -12,7 +12,7 @@
 </head>
 <body>
 {% include 'include/header.html' %}
-<div class="container px-4 px-lg-5 mt-5">
+<div class="container mt-5">
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             {% for message in messages %}
@@ -31,16 +31,21 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
-    <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+    <div class="row">
+        <div class="col-12 col-lg-3">
+            {% include 'include/sidebar.html' %}
+        </div>
+        <div class="col-12 col-lg-9">
+            {% block content %}
 
-        {% include 'include/sidebar.html' %}
-        {% block content %}
-
-        {% endblock content %}
+            {% endblock content %}
+        </div>
     </div>
+
+
 </div>
 </div>
-{% include 'include/footer.html' %}
+{#{% include 'include/footer.html' %}#}
 <script src="{{ url_for('static', filename='js/bootstrap.bundle.js') }}"></script>
 </body>
 </html>

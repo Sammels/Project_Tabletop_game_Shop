@@ -17,17 +17,19 @@ from wtforms import (
 from .models import Category
 
 
-def get_category() -> typing.List[typing.Tuple[str, str]]:
-    """Запрос всех категорий для поля category в форме ProductForm"""
-    all_category = Category.query.all()
+def get_category(all_category=None) -> typing.List[typing.Tuple[str, str]]:
+    """ Запрос всех категорий для поля category в форме ProductForm """
+
+    if all_category is None:
+        all_category = Category.query.all()
     category = [(category.name, category.name) for category in all_category]
     return category
 
 
 class CategoryForm(Form):
-    """Форма добавления категории"""
+    """ Форма добавления категории """
 
-    name = StringField("Категория", [validators.Length(min=4, max=120)])
+    name = StringField('Категория', [validators.Length(min=4, max=120)])
 
 
 class ProductForm(Form):
