@@ -59,10 +59,10 @@ class Product(BDConnector):
         "Category", secondary=category_product, backref=backref("products", lazy=True)
     )
     description = Column(Text(), unique=True)
-    image_poster = relationship('PosterImage', secondary=poster_product,
+    image_poster = relationship('PosterImage', secondary=poster_product, cascade='all, delete-orphan', single_parent=True,
                                 backref=backref('products', lazy=True))
-    image_shots = relationship('ShotsImage', secondary=shots_product,
-                               backref=backref('products', lazy=True))
+    image_shots = relationship('ShotsImage', secondary=shots_product, cascade='all, delete-orphan', single_parent=True,
+                               backref=backref('products', lazy=True,))
     stock = Column(Boolean())
 
     def __repr__(self):

@@ -10,11 +10,11 @@
                 {{ render_field(form.price) }}
                 {{ render_field(form.image_poster) }}
                 {{ render_field(form.image_shots) }}
-                {{ render_field(form.category) }} <a href="/add-category">Add category</a>
+                {{ render_field(form.category) }} <a href="/admin/add-category">Добавить категорию</a>
                 {{ render_field(form.description) }}
                 {{ render_field(form.stock) }}
             </dl>
-            <p><input type=submit value=Register>
+            <p><input class="btn btn-outline-dark mt-auto" type=submit value=Добавить>
         </form>
     </div>
 {% endblock content %}

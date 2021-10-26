@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 {% block title %}  {% endblock title %}
 {% block content %}
-{% from "_formhelpers.html" import render_field %}
-<form method=post>
-    <dl>
-        {{ render_field(form.name) }} <a href="/admin/add-product/">Add product</a>
-    </dl>
-    <p><input type=submit value="Register">
-</form>
+    {% from "_formhelpers.html" import render_field %}
+    <form method=post>
+        <dl>
+            {{ render_field(form.name) }} <a href="/admin/add-product/">Добавить товар</a>
+        </dl>
+        <p><input class="btn btn-outline-dark mt-auto" type=submit value=Добавить>
+    </form>
 {% endblock content %}

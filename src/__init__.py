@@ -8,21 +8,22 @@ from flask_login import (
     logout_user,
     current_user,
 )
+from sqlalchemy.orm import Session
 from werkzeug.utils import secure_filename
 
 from .forms import ProductForm, CategoryForm, get_category
 
 # Удалить потом flask_bcrypt
 from .db import db_session
-from .models import Product, Category, User, PosterImage, ShotsImage
+from .models import Product, Category, User, PosterImage, ShotsImage, category_product
 from .forms import LoginForm, RegisterForm
+from flask_bootstrap import Bootstrap
 
 
 # Заводим Фласк
 def create_app():
     app = Flask(__name__)
     app.secret_key = os.urandom(512)
-
     login_manager = LoginManager()
     login_manager.init_app(app)
     # Присваиваем функцию для работы с логином.
@@ -41,6 +42,7 @@ def create_app():
             category = Category(name=form.name.data)
             db_session.add(category)
             db_session.commit()
+            flash('Категория успешно добавлена')
             return redirect('/admin/add-category/')
         return render_template('add_category.html', form=form)
 
@@ -74,6 +76,7 @@ def create_app():
                 product.category.append(category[0])
             db_session.add(product)
             db_session.commit()
+            flash('Товар успешно добавлен')
             return redirect('/admin/add-product/')
         return render_template('add_product.html', form=form)
 
@@ -111,6 +114,7 @@ def create_app():
         product = Product.query.filter(Product.id.contains(product_id)).first()
         db_session.delete(product)
         db_session.commit()
+        flash('Товар успешно удален')
         return redirect('/admin/')
 
     @app.context_processor
@@ -190,7 +194,6 @@ def create_app():
             product.price = form.price.data
             product.description = form.description.data
             product.stock = form.stock.data
-
             poster = request.files[form.image_poster.name]
             poster_name = secure_filename(poster.filename)
             if poster_name:
@@ -200,34 +203,30 @@ def create_app():
                 mimetype_poster = poster.mimetype
                 img_poster = PosterImage(img=poster.read(), name=poster_name, mimetype=mimetype_poster)
                 product.image_poster.append(img_poster)
-
             shots_all = request.files.getlist(form.image_shots.name)
             if shots_all[0].filename:
                 for shot in product.image_shots:
                     image_shots_delete = ShotsImage.query.filter(ShotsImage.id.contains(shot.id)).first()
                     db_session.delete(image_shots_delete)
-            for shots in shots_all:
-                shot_name = secure_filename(shots.filename)
-                mimetype_poster = shots.mimetype
-                img_shots = ShotsImage(img=shots.read(), name=shot_name, mimetype=mimetype_poster)
-                product.image_shots.append(img_shots)
+                for shots in shots_all:
+                    shot_name = secure_filename(shots.filename)
+                    mimetype_poster = shots.mimetype
+                    img_shots = ShotsImage(img=shots.read(), name=shot_name, mimetype=mimetype_poster)
+                    product.image_shots.append(img_shots)
             if form.category.data:
-                for category in product.category:
-                    category_del = Category.query.filter(Category.id.contains(category.id)).first()
-                    db_session.delete(category_del)
+                product.category.clear()
                 for name in form.category.data:
                     category = Category.query.filter_by(name=name).all()
                     product.category.append(category[0])
             db_session.commit()
+            flash('Товар успешно изменен')
             return redirect(f'/admin/update-product/{product_id}')
-
         elif request.method == 'GET':
             form.name.data = product.name
             form.title.data = product.title
             form.price.data = product.price
             form.description.data = product.description
             form.stock.data = product.stock
-
         return render_template('update_product.html', form=form, product=product)
 
     return app
