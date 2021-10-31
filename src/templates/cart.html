@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}  {% endblock title %}
+{% block content %}
+        <div class="container h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col">
+                    <p><span class="h2">Корзина </span><span
+                            class="h4">(Количество товара: {{ cart.total_product }})</span>
+                    </p>
+                    {% for product in cart.product %}
+                        <div class="card mb-4">
+                            <div class="card-body p-4">
+
+                                <div class="row align-items-center">
+                                    <div class="col-md-2">
+                                        {% for image in product.image_poster %}
+                                            <img class="img-fluid" alt="Generic placeholder image"
+                                                 src="{{ url_for('get_poster_img', img_id=image.id) }}">
+                                        {% endfor %}
+                                    </div>
+                                    <div class="col-md-2 d-flex justify-content-center">
+                                        <div>
+                                            <p class="small text-muted mb-4 pb-2">Наименование</p>
+                                            <p class="lead fw-normal mb-0">{{ product.name }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 d-flex justify-content-center">
+                                        <div>
+                                            <p class="small text-muted mb-4 pb-2">Количество</p>
+                                            <p class="lead fw-normal mb-0">{{ session.get(product.name) }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 d-flex justify-content-center">
+                                        <div>
+                                            <p class="small text-muted mb-4 pb-2">Цена</p>
+                                            <p class="lead fw-normal mb-0">{{ product.price }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 d-flex justify-content-center">
+                                        <div>
+                                            <p class="small text-muted mb-4 pb-2">Итого</p>
+                                            <p class="lead fw-normal mb-0">{{ session.get(product.name)*product.price }}</p>
+                                        </div>
+                                        <div>
+                                            <form action="{{ url_for('delete_product_cart', product_id=product.id) }}"
+                                                  method="post">
+                                                <p><input class="btn btn-outline-dark mt-auto" type=submit
+                                                          value=Удалить>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div class="card mb-5">
+                        <div class="card-body p-4">
+                            <div class="float-end">
+                                <p class="mb-0 me-5 d-flex align-items-center">
+                                    <span class="small text-muted me-2">Всего:</span> <span
+                                        class="lead fw-normal">{{ cart.total_price }} руб.</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock content %}

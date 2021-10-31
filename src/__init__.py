@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, flash, request, render_template, redirect, url_for, Response
+from flask import Flask, flash, request, render_template, redirect, url_for, Response, session
 from flask_login import (
     LoginManager,
     login_user,
@@ -8,16 +8,14 @@ from flask_login import (
     logout_user,
     current_user,
 )
-from sqlalchemy.orm import Session
 from werkzeug.utils import secure_filename
 
 from .forms import ProductForm, CategoryForm, get_category
 
 # Удалить потом flask_bcrypt
 from .db import db_session
-from .models import Product, Category, User, PosterImage, ShotsImage, category_product
+from .models import Product, Category, User, PosterImage, ShotsImage, category_product, Cart
 from .forms import LoginForm, RegisterForm
-from flask_bootstrap import Bootstrap
 
 
 # Заводим Фласк
@@ -153,6 +151,7 @@ def create_app():
             user = User.query.filter(User.username == form.username.data).first()
             if user and user.check_password(form.password.data):
                 login_user(user)
+                session['user_id'] = user.id
                 flash('Успешный вход')
                 return redirect(url_for('all_product'))
         flash('Не очень успещный вход')
@@ -228,5 +227,45 @@ def create_app():
             form.description.data = product.description
             form.stock.data = product.stock
         return render_template('update_product.html', form=form, product=product)
+
+    @app.route('/add-cart/<product_id>', methods=['GET', 'POST'])
+    @login_required
+    def add_cart(product_id):
+        user_id = session['user_id']
+        cart_user = Cart.query.filter_by(user_id=user_id, in_oder=True, for_anonymous_user=False).first()
+        if not cart_user:
+            user_cart = Cart(user_id=user_id, for_anonymous_user=False)
+            db_session.add(user_cart)
+            db_session.commit()
+        if request.method == 'POST':
+            product = Product.query.filter_by(id=product_id).first()
+            cart_user.total_product += 1
+            cart_user.total_price += product.price
+            cart_user.product.append(product)
+            session[product.name] = session.get(product.name, 0) + 1
+            db_session.commit()
+
+        return redirect(url_for("all_product"))
+
+    @app.route('/cart/')
+    @login_required
+    def cart():
+        user_id = session['user_id']
+        cart_user = Cart.query.filter_by(user_id=user_id, in_oder=True, for_anonymous_user=False).first()
+        return render_template('cart.html', cart=cart_user)
+
+
+    @app.route('/delete_product_cart/<product_id>', methods=['GET', 'POST'])
+    @login_required
+    def delete_product_cart(product_id):
+        user_id = session['user_id']
+        cart_user = Cart.query.filter_by(user_id=user_id, in_oder=True, for_anonymous_user=False).first()
+        if request.method == 'POST':
+            product = Product.query.filter_by(id=product_id).first()
+            cart_user.total_product -= 1
+            cart_user.total_price -= product.price
+            cart_user.product.remove(product)
+            db_session.commit()
+        return redirect('/cart')
 
     return app

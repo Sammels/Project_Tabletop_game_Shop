@@ -33,6 +33,12 @@ shots_product = Table('shots_product',
                       Column('product_id', Integer, ForeignKey('product.id'))
                       )
 
+product_cart = Table('product_cart',
+                     BDConnector.metadata,
+                     Column('product_id', Integer, ForeignKey('product.id')),
+                     Column('cart_id', Integer, ForeignKey('cart.id'))
+                     )
+
 
 class Category(BDConnector):
     """Категории"""
@@ -59,10 +65,11 @@ class Product(BDConnector):
         "Category", secondary=category_product, backref=backref("products", lazy=True)
     )
     description = Column(Text(), unique=True)
-    image_poster = relationship('PosterImage', secondary=poster_product, cascade='all, delete-orphan', single_parent=True,
+    image_poster = relationship('PosterImage', secondary=poster_product, cascade='all, delete-orphan',
+                                single_parent=True,
                                 backref=backref('products', lazy=True))
     image_shots = relationship('ShotsImage', secondary=shots_product, cascade='all, delete-orphan', single_parent=True,
-                               backref=backref('products', lazy=True,))
+                               backref=backref('products', lazy=True, ))
     stock = Column(Boolean())
 
     def __repr__(self):
@@ -79,6 +86,7 @@ class User(BDConnector, UserMixin):
     username = Column(String(64), nullable=False, index=True, unique=True)
     password = Column(String(255), nullable=False)
     role = Column(String(40), index=True)
+    cart = relationship('Cart', backref='user')
 
     def set_password(self, password):
         """Хеширование пароля"""
@@ -112,6 +120,18 @@ class ShotsImage(BDConnector):
     img = Column(BLOB, unique=True, nullable=False)
     name = Column(Text, nullable=False)
     mimetype = Column(Text, nullable=False)
+
+
+class Cart(BDConnector):
+    __tablename__ = 'cart'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    product = relationship('Product', secondary=product_cart, backref=backref('cart', lazy=True))
+    total_product = Column(Integer(), default=0)
+    total_price = Column(Integer(), default=0)
+    in_oder = Column(Boolean(), default=True)
+    for_anonymous_user = Column(Boolean(), default=True)
 
 
 # Создание БД
