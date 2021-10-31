@@ -6,7 +6,7 @@ from sqlalchemy import (
     Boolean,
     ForeignKey,
     Table,
-    BLOB
+    BLOB,
 )
 from sqlalchemy.orm import relationship, backref
 from flask_login import UserMixin
@@ -21,17 +21,19 @@ category_product = Table(
     Column("product_id", Integer, ForeignKey("product.id")),
 )
 
-poster_product = Table('poster_product',
-                       BDConnector.metadata,
-                       Column('poster_id', Integer, ForeignKey('poster.id')),
-                       Column('product_id', Integer, ForeignKey('product.id'))
-                       )
+poster_product = Table(
+    "poster_product",
+    BDConnector.metadata,
+    Column("poster_id", Integer, ForeignKey("poster.id")),
+    Column("product_id", Integer, ForeignKey("product.id")),
+)
 
-shots_product = Table('shots_product',
-                      BDConnector.metadata,
-                      Column('shots_id', Integer, ForeignKey('shots.id')),
-                      Column('product_id', Integer, ForeignKey('product.id'))
-                      )
+shots_product = Table(
+    "shots_product",
+    BDConnector.metadata,
+    Column("shots_id", Integer, ForeignKey("shots.id")),
+    Column("product_id", Integer, ForeignKey("product.id")),
+)
 
 product_cart = Table('product_cart',
                      BDConnector.metadata,
@@ -61,6 +63,7 @@ class Product(BDConnector):
     name = Column(String(length=120), unique=True)
     title = Column(String(length=240), unique=True)
     price = Column(Integer())
+    image = Column(Integer())
     category = relationship(
         "Category", secondary=category_product, backref=backref("products", lazy=True)
     )
@@ -105,7 +108,7 @@ class User(BDConnector, UserMixin):
 
 
 class PosterImage(BDConnector):
-    __tablename__ = 'poster'
+    __tablename__ = "poster"
 
     id = Column(Integer, primary_key=True)
     img = Column(BLOB, unique=True, nullable=False)
@@ -114,7 +117,7 @@ class PosterImage(BDConnector):
 
 
 class ShotsImage(BDConnector):
-    __tablename__ = 'shots'
+    __tablename__ = "shots"
 
     id = Column(Integer, primary_key=True)
     img = Column(BLOB, unique=True, nullable=False)

@@ -14,12 +14,21 @@
                             <h5 class="fw-bolder">{{ product.title }}</h5>
                             {{ product.price }} руб.
                         </div>
+                        <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                            <div class="text-center"><a class="btn btn-outline-dark mt-auto"
+                                                        href="/about_prod/{{ product.id }}">
+                                Подробнее</a></div>
+                            <div class="text-center"><a class="btn btn-outline-dark mt-auto"
+                                                        href="#">
+                                Добавить в корзину</a></div>
+                        </div>
                     </div>
                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                         <div class="my-2 text-center"><a class="btn btn-outline-dark mt-auto"
                                                          href="#">
                             Подроднее</a></div>
-                        <form class="my-2 text-center" action="{{ url_for('add_cart', product_id=product.id) }}" method="post">
+                        <form class="my-2 text-center" action="{{ url_for('add_cart', product_id=product.id) }}"
+                              method="post">
                             <input class="btn btn-outline-dark mt-auto" type=submit value="Добавить в корзину">
                         </form>
                     </div>

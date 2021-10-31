@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+{% block title %}
+{{title}}
+{% endblock title %}
+<div class="container mt-5">
+    <h1>{{title}}</h1>
+    {% for el in product_information %}
+    <div class="alert alert-info">
+        <h2>Наименование продукта: {{ el.name }}</h2>
+        <p>Краткое описание продукта: {{el.title}}</p>
+        <p>Описание продукта: {{el.description}}</p>
+        <p><b>Цена: {{el.price}} руб.</b></p>
+        <a href="/about_prod/{{el.id}}"class="btn btn-warning">Подробнее</a>
+    </div>
+    {% endfor %}
+</div>                        
+{% endblock content %}

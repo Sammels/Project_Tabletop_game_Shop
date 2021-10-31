@@ -1,7 +1,6 @@
 import typing
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, ValidationError
 from wtforms import (
     Form,
     BooleanField,
@@ -9,12 +8,13 @@ from wtforms import (
     IntegerField,
     validators,
     SelectMultipleField,
+    FileField,
     PasswordField,
     SubmitField,
     MultipleFileField,
     TextAreaField
 )
-from .models import Category
+from .models import Category, User
 
 
 def get_category(all_category=None) -> typing.List[typing.Tuple[str, str]]:
@@ -73,7 +73,7 @@ class RegisterForm(FlaskForm):
     submit = SubmitField("Регистрация")
 
     # # Проверка имени пользователя
-    # def validate_username(self, username):
-    #     existing_user_username = User.query.filter_by(username=username.data).first()
-    #     if existing_user_username:
-    #         raise ValidationError("Это имя пользователя уже занято. Исп. другое")
+    def validate_username(self, username):
+        existing_user_username = User.query.filter_by(username=username.data).first()
+        if existing_user_username:
+            raise ValidationError("Это имя пользователя уже занято. Исп. другое")
