@@ -26,5 +26,6 @@ six==1.16.0
 SQLAlchemy==1.4.25
 tomli==1.2.1
 typing-extensions==3.10.0.2
+waitress==2.0.0
 Werkzeug==2.0.1
 WTForms==2.3.3

@@ -1,23 +1,44 @@
 {% extends 'base.html' %}
 {% block title %} Главная {% endblock title %}
 {% block content %}
-
-{% from "_formhelpers.html" import render_field %}
-<div class="container">
-<form method=post enctype="multipart/form-data">
-    <dl>
-        {{ render_field(form.name) }}
-        {{ render_field(form.title) }}
-        {{ render_field(form.price) }}
-        {{ render_field(form.category) }} <a href={{url_for("add_category")}}>Добавить категорию</a>
-
-        {{ render_field(form.image_poster) }}
-        {{ render_field(form.image_shots) }}
-        {{ render_field(form.description) }}
-        {{ render_field(form.stock) }}
-    </dl>
-    <p><input type=submit value=Register>
-</form>
-</div>
+    <div class="container">
+        <form method=POST enctype="multipart/form-data">
+            <div class="form-group">
+                <p style="margin-bottom: 0px">Наименование товара</p>
+                {{ form.name(class="form-control", style="margin-bottom: 15px") }}
+                <hr>
+            </div>
+            <div class="form-group">
+                <p style="margin-bottom: 0px">Краткое описание товара</p>
+                {{ form.title(class="form-control", style="margin-bottom: 15px") }}
+                <hr>
+            </div>
+            <div class="form-group">
+                <p style="margin-bottom: 0px">Стоимость</p>
+                {{ form.price(class="form-control", style="margin-bottom: 15px") }}
+                <hr>
+            </div>
+            <div>
+                {{ form.image_poster(class="form-control-file", id="exampleFormControlFile1") }}
+                <hr>
+            </div>
+            <div>
+                {{ form.image_shots(class="form-control-file", id="exampleFormControlFile1") }}
+                <hr>
+            </div>
+            <div>
+                <p style="margin-bottom: 0px">Доступные категории</p>
+                {{ form.category(class="custom-select") }}
+                <a href={{url_for("add_category")}}>Добавить категорию</a>
+                <hr>
+            </div>
+            <div class="form-group">
+                <p style="margin-bottom: 0px">Описание товара</p>
+                {{ form.description(class="form-control", style="margin-bottom: 15px", id="exampleFormControlTextarea1", rows="3") }}
+            </div>
+            <p style="margin-bottom: 0px">Наличие</p>
+            {{ form.stock(class="form-check-input position-static", id="blankCheckbox") }}
+            <p><input class="btn btn-outline-dark mt-auto" type=submit value=Добавить>
+        </form>
+    </div>
 {% endblock content %}
-
