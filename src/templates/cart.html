@@ -15,7 +15,7 @@
                                     <div class="col-md-2">
                                         {% for image in product.image_poster %}
                                             <img class="img-fluid" alt="Generic placeholder image"
-                                                 src="{{ url_for('get_poster_img', img_id=image.id) }}">
+                                                 src="{{ url_for('serve_img', class_img='poster', img_id=image.id) }}">
                                         {% endfor %}
                                     </div>
                                     <div class="col-md-2 d-flex justify-content-center">

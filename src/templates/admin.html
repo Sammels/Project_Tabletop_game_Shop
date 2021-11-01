@@ -26,12 +26,12 @@
                 <td>{{ product.price }}</td>
                 <td>
                     {% for image in product.image_poster %}
-                        <img class="card-img-top" src="{{ url_for('get_poster_img', img_id=image.id) }}">
+                        <img class="card-img-top" src="{{ url_for('serve_img', class_img='poster', img_id=image.id) }}">
                     {% endfor %}
                 </td>
                 <td>
                     {% for image in product.image_shots %}
-                        <img class="card-img-top" src="{{ url_for('get_shots_img', img_id=image.id) }}">
+                        <img class="card-img-top" src="{{ url_for('serve_img', class_img='shot', img_id=image.id) }}">
                     {% endfor %}
                 </td>
                 <td>

@@ -107,6 +107,9 @@ def create_app():
     @login_required
     def product_delete(product_id):
         product = Product.query.filter(Product.id.contains(product_id)).first()
+        if product is None:
+            flash('Товар не найдена')
+            return redirect('/admin/')
         db_session.delete(product)
         db_session.commit()
         flash('Товар успешно удален')
@@ -117,9 +120,12 @@ def create_app():
         categories = Category.query.all()
         return dict(categories=categories)
 
-    @app.route("/img/<int:img_id>")
-    def serve_img(img_id):
-        img = PosterImage.query.filter_by(id=img_id).first()
+    @app.route("/img/<class_img>/<int:img_id>")
+    def serve_img(class_img, img_id):
+        if class_img == 'poster':
+            img = PosterImage.query.filter_by(id=img_id).first()
+        elif class_img == 'shot':
+            img = ShotsImage.query.filter_by(id=img_id).first()
         if not img:
             return "Img Not Found!", 404
         return Response(img.img, mimetype=img.mimetype)
@@ -181,23 +187,6 @@ def create_app():
         logout_user()
         flash("Успешно вышел")
         return redirect(url_for("all_product"))
-
-    # TODO Подумать как сдеать одну функцию с get_poster_img и get_shots_img
-    @app.route('/poster-img/<int:img_id>/')
-    def get_poster_img(img_id):
-        """ Функция вывода изображения (Постер товара)"""
-        img = PosterImage.query.filter_by(id=img_id).first()
-        if not img:
-            return 'Img Not Found!', 404
-        return Response(img.img, mimetype=img.mimetype)
-
-    @app.route('/shots-img/<int:img_id>')
-    def get_shots_img(img_id):
-        """ Функция вывода изображения (Дополнительные снимки товара)"""
-        img = ShotsImage.query.filter_by(id=img_id).first()
-        if not img:
-            return 'Img Not Found!', 404
-        return Response(img.img, mimetype=img.mimetype)
 
     @app.route('/admin/update-product/<int:product_id>/', methods=['GET', 'POST'])
     def update_product(product_id):
