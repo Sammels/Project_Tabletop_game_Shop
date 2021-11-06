@@ -36,3 +36,27 @@
 
 
 <b>Update:</b> Добавление Докер файла
+
+[Установка докера на Debian](https://docs.docker.com/engine/install/debian/#install-using-the-repository "Дока на докер(Деб)")
+
+Работать с докером в виртуальном окружении
+
+`docker build -t [name container] [PATH]` - Создание контейнера
+
+`docker run -d -p [порт локальной машины]:[порт внутри контейнера] [name conrainer]`
+
+
+---------------
+<b>gunicorn</b> - Библиотека позволяющая обслуживать больше одного пользователя.
+
+Создан:`src/wsgi.py`
+
+`--bind=0.0.0.0:5000` - выбор на каком порту
+`workers = количество ядер цпу + 1`
+`src.wsgi:app` - наименования приложения:функция запуска.
+
+Запуск
+`gunicorn --bind=0.0.0.0:5000 --workers 3 src.wsgi:app`
+
+
+`entrypoint.sh`
