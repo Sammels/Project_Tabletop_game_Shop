@@ -76,7 +76,6 @@ class Product(BDConnector):
 
     product_cart = relationship('ProductCart', backref='add_product_cart', lazy='dynamic')
 
-
     def __repr__(self):
         return f"Наименование игры: {self.name}"
 
@@ -134,7 +133,9 @@ class Cart(BDConnector):
     total_product = Column(Integer(), default=0)
     total_price = Column(Integer(), default=0)
     in_oder = Column(Boolean(), default=True)
-    product = relationship('ProductCart', secondary=product_cart, backref=backref('cart', lazy=True))
+    product = relationship('ProductCart', secondary=product_cart, cascade='all, delete-orphan',
+                           single_parent=True,
+                           backref=backref('cart', lazy=True))
 
 
 class ProductCart(BDConnector):

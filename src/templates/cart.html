@@ -13,7 +13,7 @@
 
                             <div class="row align-items-center">
                                 <div class="col-md-2">
-                                    {% for image in product.image_poster %}
+                                    {% for image in product.add_product_cart.image_poster %}
                                         <img class="img-fluid" alt="Generic placeholder image"
                                              src="{{ url_for('serve_img', class_img='poster', img_id=image.id) }}">
                                     {% endfor %}
@@ -21,30 +21,30 @@
                                 <div class="col-md-2 d-flex justify-content-center">
                                     <div>
                                         <p class="small text-muted mb-4 pb-2">Наименование</p>
-                                        <p class="lead fw-normal mb-0">{{ product.name }}</p>
+                                        <p class="lead fw-normal mb-0">{{ product.add_product_cart.name }}</p>
                                     </div>
                                 </div>
                                 <div class="col-md-2 d-flex justify-content-center">
                                     <div>
                                         <p class="small text-muted mb-4 pb-2">Количество</p>
-                                        <p class="lead fw-normal mb-0">{{ session.get(product.name, 0) }}</p>
+                                        <p class="lead fw-normal mb-0">{{ product.qty }}</p>
                                     </div>
                                 </div>
                                 <div class="col-md-2 d-flex justify-content-center">
                                     <div>
                                         <p class="small text-muted mb-4 pb-2">Цена</p>
-                                        <p class="lead fw-normal mb-0">{{ product.price }}</p>
+                                        <p class="lead fw-normal mb-0">{{ product.add_product_cart.price }}</p>
                                     </div>
                                 </div>
                                 <div class="col-md-2 d-flex justify-content-center">
                                     <div>
                                         <p class="small text-muted mb-4 pb-2">Итого</p>
-                                        <p class="lead fw-normal mb-0">{{ session.get(product.name, 0)*product.price }}</p>
+                                        <p class="lead fw-normal mb-0">{{ product.qty*product.add_product_cart.price }}</p>
 
-                                        <a href="{{ url_for('change_quantity',product_id=product.id, minusplus='+' ) }}">
+                                        <a href="{{ url_for('change_quantity',product_id=product.add_product_cart.id, minusplus='+' ) }}">
                                             добавить
                                         </a> <a
-                                            href="{{ url_for('change_quantity',product_id=product.id, minusplus='-' ) }}">
+                                            href="{{ url_for('change_quantity',product_id=product.add_product_cart.id, minusplus='-' ) }}">
                                         убрать
                                     </a>
                                     </div>
