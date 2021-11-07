@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %} Главная {% endblock title %}
+{% block content %}
+    <div class="container">
+        <form method=POST enctype="multipart/form-data">
+            <div class="form-group">
+                <p style="margin-bottom: 0px">Наименование товара</p>
+                {{ form.name(class="form-control", style="margin-bottom: 15px") }}
+                <hr>
+            </div>
+            <div class="form-group">
+                <p style="margin-bottom: 0px">Краткое описание товара</p>
+                {{ form.title(class="form-control", style="margin-bottom: 15px") }}
+                <hr>
+            </div>
+            <div class="form-group">
+                <p style="margin-bottom: 0px">Стоимость</p>
+                {{ form.price(class="form-control", style="margin-bottom: 15px") }}
+                <hr>
+            </div>
+            <div>
+                <p style="margin-bottom: 0px">Текущий постер</p>
+                {% for image in product.image_poster %}
+                    <img src="{{ url_for('serve_img', class_img='poster', img_id=image.id) }}" alt="..." class="img-thumbnail"
+                         style="width: 210px">
+                {% endfor %}
+                {{ form.image_poster(class="form-control-file", id="exampleFormControlFile1") }}
+                <hr>
+            </div>
+            <div>
+                <p style="margin-bottom: 0px">Текущий снимки</p>
+                {% for image in product.image_shots %}
+                    <img src="{{ url_for('serve_img', class_img='shot', img_id=image.id) }}" alt="..." class="img-thumbnail"
+                         style="width: 210px">
+                {% endfor %}
+                {{ form.image_shots(class="form-control-file", id="exampleFormControlFile1") }}
+                <hr>
+            </div>
+            <div>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Текущии категории</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for category in product.category %}
+                        <tr>
+                            <td>{{ category.name }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <hr>
+            </div>
+            <div>
+                <p style="margin-bottom: 0px">Доступные категории</p>
+                {{ form.category(class="custom-select") }}
+                <hr>
+            </div>
+            <div class="form-group">
+                <p style="margin-bottom: 0px">Описание товара</p>
+                {{ form.description(class="form-control", style="margin-bottom: 15px", id="exampleFormControlTextarea1", rows="3") }}
+            </div>
+            <p style="margin-bottom: 0px">Наличие</p>
+            {{ form.stock(class="form-check-input position-static", id="blankCheckbox") }}
+            <p><input class="btn btn-outline-dark mt-auto" type=submit value=Изменить>
+        </form>
+    </div>
+{% endblock content %}
