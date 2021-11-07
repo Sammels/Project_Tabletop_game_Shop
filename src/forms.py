@@ -1,36 +1,34 @@
 import typing
-
 from flask_wtf import FlaskForm
-
-from wtforms.validators import DataRequired
-
-
-from src.models import Category
-
+from wtforms.validators import DataRequired, ValidationError
 from wtforms import (
     Form,
-    TextAreaField,
     BooleanField,
     StringField,
     IntegerField,
     validators,
     SelectMultipleField,
     FileField,
-    MultipleFileField,
     PasswordField,
     SubmitField,
+    MultipleFileField,
+    TextAreaField
 )
+from .models import Category, User
 
 
-def get_category() -> typing.List[typing.Tuple[str, str]]:
-    """Запрос всех категорий для поля category в форме ProductForm"""
-    all_category = Category.query.all()
+def get_category(all_category=None) -> typing.List[typing.Tuple[str, str]]:
+    """ Запрос всех категорий для поля category в форме ProductForm """
+
+    if all_category is None:
+        all_category = Category.query.all()
     category = [(category.name, category.name) for category in all_category]
     return category
 
 
 class CategoryForm(Form):
-    """Форма добавления категории"""
+    """ Форма добавления категории """
+
 
     name = StringField(
         "Категория",
@@ -39,23 +37,17 @@ class CategoryForm(Form):
     )
 
 
-class ProductForm(Form):
-    """Форма добавления Настольной игры"""
 
-    name = StringField(
-        "Наименование настольной игры", [validators.Length(min=4, max=120)]
-    )
-    title = StringField(
-        "Краткое описание настолькой игры", [validators.Length(min=6, max=240)]
-    )
-    price = IntegerField("Цена", [validators.NumberRange(min=0)])
-    image_poster = FileField("Постер")
-    image_shots = MultipleFileField("Изображения")
-    category = SelectMultipleField(
-        "Категории (выберите один или несколько)", coerce=str
-    )
-    description = TextAreaField("Описание")
-    stock = BooleanField("В наличии")
+class ProductForm(Form):
+    """ Форма добавления Настольной игры"""
+    name = StringField('Наименование настольной игры', [validators.Length(min=4, max=120)])
+    title = StringField('Краткое описание настолькой игры', [validators.Length(min=6, max=240)])
+    price = IntegerField('Цена', [validators.NumberRange(min=0)])
+    image_poster = FileField('Постер')
+    image_shots = MultipleFileField('Изображения')
+    category = SelectMultipleField('Категории (веберите одну или несколько)', coerce=str)
+    description = TextAreaField('Описание')
+    stock = BooleanField('В наличии')
 
 
 class LoginForm(FlaskForm):

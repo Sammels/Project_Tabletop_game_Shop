@@ -1,31 +1,12 @@
 {% extends 'base.html' %}
 {% block title %} Добавление категории РИ в БД {% endblock title %}
 {% block content %}
-{% from "_formhelpers.html" import render_field %}
 
-<div class="container">
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-      <div class="alert warning" role="alert">
-        {% for message in messages %}
-          {{message}} <br>
-        {% endfor %}
-      </div>
-      {% endif %}
-    {% endwith %}
-
-<form method=post>
-  <div class="row g-3">
-    <div class="col">
-      <div class="form-control">
-        {{render_field(form.name)}}
-      </div>
-    </div>
-  </div> 
-
-  <a href="{{url_for('add_product')}}">Добавить продукт.</a>
-  
-  <p><input class="btn btn-outline-dark mt-auto" type=submit value="Регистрация категории"></p>
-</form>
-</div>
+    {% from "_formhelpers.html" import render_field %}
+    <form method=post>
+        <dl>
+            {{ render_field(form.name) }} <a href="/admin/add-product/">Добавить товар</a>
+        </dl>
+        <p><input class="btn btn-outline-dark mt-auto" type=submit value=Добавить>
+    </form>
 {% endblock content %}

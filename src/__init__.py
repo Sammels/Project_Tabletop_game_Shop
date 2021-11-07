@@ -1,6 +1,5 @@
 import os
-
-from flask import Flask, flash, request, render_template, redirect, url_for, Response
+from flask import Flask, flash, request, render_template, redirect, url_for, Response, session
 from flask_login import (
     LoginManager,
     login_user,
@@ -9,20 +8,17 @@ from flask_login import (
     current_user,
 )
 from werkzeug.utils import secure_filename
-from src.forms import ProductForm, CategoryForm, get_category
-
+from .forms import ProductForm, CategoryForm, get_category
 # Удалить потом flask_bcrypt
-from src.db import db_session
-from src.models import Product, Category, User, PosterImage, ShotsImage
-from src.forms import LoginForm, RegisterForm
-from PIL import Image as Img
-import io
+from .db import db_session
+from .models import Product, Category, User, PosterImage, ShotsImage, category_product, Cart
+from .forms import LoginForm, RegisterForm
+
 
 # Заводим Фласк
 def create_app():
     app = Flask(__name__)
     app.secret_key = os.urandom(512)
-
     login_manager = LoginManager()
     login_manager.init_app(app)
     # Присваиваем функцию для работы с логином.
@@ -32,34 +28,31 @@ def create_app():
     def load_user(user_id):
         return User.query.get(user_id)
 
-    @app.route("/add-category", methods=["GET", "POST"])
+    @app.route('/admin/add-category/', methods=['GET', 'POST'])
+    @login_required
     def add_category():
-        """
-        Добавление категорий в БД
-        """
+        """Добавление категорий в БД"""
         form = CategoryForm(request.form)
-        if request.method == "POST" and form.validate():
+        if request.method == 'POST' and form.validate():
             category = Category(name=form.name.data)
             db_session.add(category)
             db_session.commit()
-            flash("Успешно добавили")
+            flash('Категория успешно добавлена')
             return redirect(url_for("add_category"))
-        return render_template("add_category.html", form=form)
+        return render_template('add_category.html', form=form)
 
-    @app.route("/add-product", methods=["GET", "POST"])
+    @app.route('/admin/add-product/', methods=['GET', 'POST'])
+    @login_required
     def add_product():
-        # Добавление настольной игры в БД
+        """Добавление настольной игры в БД"""
         form = ProductForm(request.form)
         form.category.choices = get_category()
-        if request.method == "POST" and form.validate():
-            product = Product(
-                name=form.name.data,
-                title=form.title.data,
-                price=form.price.data,
-                description=form.description.data,
-                stock=form.stock.data,
-            )
-
+        if request.method == 'POST' and form.validate():
+            product = Product(name=form.name.data,
+                              title=form.title.data,
+                              price=form.price.data,
+                              description=form.description.data,
+                              stock=form.stock.data)
             poster = request.files[form.image_poster.name]
             poster_name = secure_filename(poster.filename)
             mimetype_poster = poster.mimetype
@@ -67,7 +60,6 @@ def create_app():
                 img=poster.read(), name=poster_name, mimetype=mimetype_poster
             )
             product.image_poster.append(img_poster)
-
             shots = request.files.getlist(form.image_shots.name)
             for image in shots:
                 image_name = secure_filename(image.filename)
@@ -79,27 +71,68 @@ def create_app():
                 product.category.append(category[0])
             db_session.add(product)
             db_session.commit()
-            return redirect(url_for("add_product"))
-        return render_template("add_product.html", form=form)
+            flash('Товар успешно добавлен')
+            return redirect('/admin/add-product/')
+        return render_template('add_product.html', form=form)
 
-    @app.route("/")
+    @app.route('/')
     def all_product():
-        """Рендер всех товаров"""
+        """ Рендер всех товаров"""
 
-        q = request.args.get("q")
+        q = request.args.get('q')
         if q:
-            products = Product.query.filter(
-                Product.name.contains(q) | Product.title.contains(q)
-            )
+            products = Product.query.filter(Product.name.contains(q) |
+                                            Product.title.contains(q))
         else:
             products = Product.query.all()
+        return render_template('all_product.html', products=products)
 
-        return render_template("all_product.html", products=products)
+    @app.route('/category/<name>/')
+    def search_categories(name):
+        category = Category.query.filter_by(name=name).first()
+        if category is None:
+            flash('Категория не найдена')
+            return redirect('/')
+        else:
+            products = category.products
+            return render_template('all_product.html', products=products)
 
+    @app.route('/admin/')
+    @login_required
+    def admin():
+        products = Product.query.all()
+        return render_template('admin.html', products=products)
+
+<
     @app.route("/img/<int:img_id>")
     def serve_img(img_id):
         """Обработчик картинок"""
         img = PosterImage.query.filter_by(id=img_id).first()
+
+    @app.route('/admin/product-delete/<int:product_id>')
+    @login_required
+    def product_delete(product_id):
+        product = Product.query.filter(Product.id.contains(product_id)).first()
+        if product is None:
+            flash('Товар не найдена')
+            return redirect('/admin/')
+        db_session.delete(product)
+        db_session.commit()
+        flash('Товар успешно удален')
+        return redirect('/admin/')
+
+    @app.context_processor
+    def all_categories():
+        categories = Category.query.all()
+        return dict(categories=categories)
+
+    @app.route("/img/<class_img>/<int:img_id>")
+    def serve_img(class_img, img_id):
+        if class_img == 'poster':
+            img = PosterImage.query.filter_by(id=img_id).first()
+        elif class_img == 'shot':
+            img = ShotsImage.query.filter_by(id=img_id).first()
+
         if not img:
             return "Img Not Found!", 404
         return Response(img.img, mimetype=img.mimetype)
@@ -130,14 +163,14 @@ def create_app():
     def process_login():
         """Процесс логина"""
         form = LoginForm()
-
         if form.validate_on_submit():
             user = User.query.filter(User.username == form.username.data).first()
             if user and user.check_password(form.password.data):
                 login_user(user)
-                flash("Успешный вход")
-                return redirect(url_for("all_product"))
-        flash("Не очень успешный вход")
+                session['user_id'] = user.id
+                flash('Успешный вход')
+                return redirect(url_for('all_product'))
+        flash('Не очень успещный вход')
         return redirect(url_for("login"))
 
     @app.route("/about_prod", methods=["GET", "POST"])
@@ -145,8 +178,7 @@ def create_app():
         """Функция страницы товара"""
         title = "Страница товара"
         product_information = Product.query.order_by(Product.id).all()
-        return render_template("product.html", product_information=product_information,title=title)
-    
+        return render_template("product.html", product_information=product_information, title=title)
 
     @app.route("/about_prod/<int:id>")
     def about_product_id(id):
@@ -156,8 +188,6 @@ def create_app():
         product = Product.query.get(id)
         return render_template("product_id.html", product=product)
 
-
-
     @app.route("/logout")
     def logout():
         """Выход"""
@@ -165,14 +195,91 @@ def create_app():
         flash("Успешно вышел")
         return redirect(url_for("all_product"))
 
-    @app.route("/admin")
+    @app.route('/admin/update-product/<int:product_id>/', methods=['GET', 'POST'])
+    def update_product(product_id):
+        """Изменение настольной игры в БД"""
+        product = Product.query.filter(Product.id.contains(product_id)).first()
+        form = ProductForm(request.form)
+        form.category.choices = get_category()
+        if request.method == 'POST' and form.validate():
+            product.name = form.name.data
+            product.title = form.title.data
+            product.price = form.price.data
+            product.description = form.description.data
+            product.stock = form.stock.data
+            poster = request.files[form.image_poster.name]
+            poster_name = secure_filename(poster.filename)
+            if poster_name:
+                for image in product.image_poster:
+                    image_poster_delete = PosterImage.query.filter(PosterImage.id.contains(image.id)).first()
+                    db_session.delete(image_poster_delete)
+                mimetype_poster = poster.mimetype
+                img_poster = PosterImage(img=poster.read(), name=poster_name, mimetype=mimetype_poster)
+                product.image_poster.append(img_poster)
+            shots_all = request.files.getlist(form.image_shots.name)
+            if shots_all[0].filename:
+                for shot in product.image_shots:
+                    image_shots_delete = ShotsImage.query.filter(ShotsImage.id.contains(shot.id)).first()
+                    db_session.delete(image_shots_delete)
+                for shots in shots_all:
+                    shot_name = secure_filename(shots.filename)
+                    mimetype_poster = shots.mimetype
+                    img_shots = ShotsImage(img=shots.read(), name=shot_name, mimetype=mimetype_poster)
+                    product.image_shots.append(img_shots)
+            if form.category.data:
+                product.category.clear()
+                for name in form.category.data:
+                    category = Category.query.filter_by(name=name).all()
+                    product.category.append(category[0])
+            db_session.commit()
+            flash('Товар успешно изменен')
+            return redirect(f'/admin/update-product/{product_id}')
+        elif request.method == 'GET':
+            form.name.data = product.name
+            form.title.data = product.title
+            form.price.data = product.price
+            form.description.data = product.description
+            form.stock.data = product.stock
+        return render_template('update_product.html', form=form, product=product)
+
+    @app.route('/add-cart/<product_id>', methods=['GET', 'POST'])
     @login_required
-    def admin_index():
-        """Админ"""
-        if current_user.is_admin:
-            return "Страница администратора"
-        else:
-            return "Не админ"
+    def add_cart(product_id):
+        user_id = session['user_id']
+        cart_user = Cart.query.filter_by(user_id=user_id, in_oder=True, for_anonymous_user=False).first()
+        if not cart_user:
+            user_cart = Cart(user_id=user_id, for_anonymous_user=False)
+            db_session.add(user_cart)
+            db_session.commit()
+        if request.method == 'POST':
+            product = Product.query.filter_by(id=product_id).first()
+            cart_user.total_product += 1
+            cart_user.total_price += product.price
+            cart_user.product.append(product)
+            session[product.name] = session.get(product.name, 0) + 1
+            db_session.commit()
+
+        return redirect(url_for("all_product"))
+
+    @app.route('/cart/')
+    @login_required
+    def cart():
+        user_id = session['user_id']
+        cart_user = Cart.query.filter_by(user_id=user_id, in_oder=True, for_anonymous_user=False).first()
+        return render_template('cart.html', cart=cart_user)
+
+    @app.route('/delete_product_cart/<product_id>', methods=['GET', 'POST'])
+    @login_required
+    def delete_product_cart(product_id):
+        user_id = session['user_id']
+        cart_user = Cart.query.filter_by(user_id=user_id, in_oder=True, for_anonymous_user=False).first()
+        if request.method == 'POST':
+            product = Product.query.filter_by(id=product_id).first()
+            cart_user.total_product -= 1
+            cart_user.total_price -= product.price
+            cart_user.product.remove(product)
+            db_session.commit()
+        return redirect('/cart')
 
 
     # Временные функции
