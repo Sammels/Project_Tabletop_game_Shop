@@ -21,3 +21,18 @@
 
 Вводить: `export FLASK_APP=src && export FLASK_ENV=development && flask run
 `
+
+## 01.11.2021 Добавлена первичная возможность для деплоя.
+
+Запускать
+`waitress-serve --call 'src:create_app'`
+
+[Настройка](https://docs.pylonsproject.org/projects/waitress/en/stable/usage.html "этапы работы")
+
+----------------
+Будем использовать Heroky
+
+[Информация по настройке Heroky](https://devcenter.heroku.com/articles/getting-started-with-python?singlepage=true "Настройка Heroky")
+
+
+<b>Update:</b> Добавление Докер файла

@@ -29,7 +29,13 @@ def get_category(all_category=None) -> typing.List[typing.Tuple[str, str]]:
 class CategoryForm(Form):
     """ Форма добавления категории """
 
-    name = StringField('Категория', [validators.Length(min=4, max=120)])
+
+    name = StringField(
+        "Категория",
+        [validators.Length(min=4, max=120)],
+        render_kw={"placeholder": "Введите категорию"},
+    )
+
 
 
 class ProductForm(Form):
@@ -45,7 +51,7 @@ class ProductForm(Form):
 
 
 class LoginForm(FlaskForm):
-    """Форма логинаю Наследуется от FlaskForm"""
+    """Форма логина. Наследуется от FlaskForm"""
 
     username = StringField(
         "Логин",
