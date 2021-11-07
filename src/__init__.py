@@ -98,6 +98,7 @@ def create_app():
 
     @app.route("/img/<int:img_id>")
     def serve_img(img_id):
+        """Обработчик картинок"""
         img = PosterImage.query.filter_by(id=img_id).first()
         if not img:
             return "Img Not Found!", 404
@@ -172,5 +173,84 @@ def create_app():
             return "Страница администратора"
         else:
             return "Не админ"
+
+
+    # Временные функции
+
+    @app.route("/action")
+    def action():
+        """Акции проводимые магазином"""
+        title = "Акции в магазине"
+        return render_template("actions.html", title=title)
+
+    @app.route("/about_us")
+    def about():
+        """Информация о нас """
+        title = "Информация о нас."
+        return render_template("about_us.html", title=title)
+
+    # Доставка и оплата
+    @app.route("/pay")
+    def pay_form():
+        """Способы оплаты"""
+        title = "Способы оплаты"
+        return render_template("pay_form.html", title=title)
+
+    @app.route("/deliver")
+    def deliver_form():
+        """Способы доставки"""
+        title = "Доставка товаров"
+        return render_template("deliver_form.html", title=title)
+
+    @app.route("/shop_address")
+    def shop_address():
+        """Адреса магазинов"""
+        title = "Адреса магазинов"
+        return render_template("shop_address.html", title=title)
+
+    # Покупателям
+
+    @app.route("/game_choose")
+    def choose_the_game():
+        """Подобрать игру"""
+        title = "Подбор игры"
+        return render_template("choose_game.html", title=title)
+
+    @app.route("/help")
+    def site_help():
+        """Помощь"""
+        title = "Подбор игры"
+        return render_template("helps.html", title=title)
+
+    @app.route("/bonus")
+    def bonus_programm():
+        """Бонусная программа"""
+        title = "Наши бонусные программы"
+        return render_template("bonus.html", title=title)
+
+    @app.route("/shop")
+    def shop_info():
+        """Бонусная программа"""
+        title = "О магазине"
+        return render_template("about_shop.html", title=title)
+
+    @app.route("/news")
+    def shop_news():
+        """Новости"""
+        title = "Магазинные сплетни"
+        return render_template("shop_news.html", title=title)   
+   
+    @app.route("/contact")
+    def shop_contacts():
+        """Новости"""
+        title = "Контактные данные"
+        return render_template("contacts.html", title=title)
+
+    @app.route("/another_link")
+    def redirect_links():
+        """Новости"""
+        title = "Куда-то"
+        return render_template("redirect_to.html", title=title)
+      
 
     return app

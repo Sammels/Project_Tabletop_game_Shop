@@ -5,37 +5,37 @@
                 <div class="col-md-4 col-sm-6 col-xs-6" style="width: 224px;">
                     <div>ДОСТАВКА И ОПЛАТА</div>
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><a class="footer-a" href="/#">Способы оплаты</a></li>
-                        <li class="list-group-item"><a class="footer-a" href="/#">Службы доставки</a></li>
-                        <li class="list-group-item"><a class="footer-a" href="/#">Адреса магазинов</a></li>
+                        <li class="list-group-item"><a class="footer-a" href="{{url_for('pay_form')}}">Способы оплаты</a></li>
+                        <li class="list-group-item"><a class="footer-a" href="{{url_for('deliver_form')}}">Службы доставки</a></li>
+                        <li class="list-group-item"><a class="footer-a" href="{{url_for('shop_address')}}">Адреса магазинов</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4 col-sm-6 col-xs-6" style="width: 224px;">
                     <div>ПОКУПАТЕЛЯМ</div>
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><a class="footer-a" href="/#">Подобрать игру</a></li>
-                        <li class="list-group-item"><a class="footer-a" href="/#">Помощь</a></li>
-                        <li class="list-group-item"><a class="footer-a" href="/#">Бонусная программа</a></li>
+                        <li class="list-group-item"><a class="footer-a" href="{{url_for('choose_the_game')}}">Подобрать игру</a></li>
+                        <li class="list-group-item"><a class="footer-a" href="{{url_for('site_help')}}">Помощь</a></li>
+                        <li class="list-group-item"><a class="footer-a" href="{{url_for('bonus_programm')}}">Бонусная программа</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4 col-sm-6 col-xs-6" style="width: 224px;">
-                    <div>Доставка и Оплата</div>
+                    <div>ОБЩАЯ ИНФОРМАЦИЯ</div>
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><a class="footer-a" href="/#">О магазине</a></li>
-                        <li class="list-group-item"><a class="footer-a" href="/#">Новости</a></li>
-                        <li class="list-group-item"><a class="footer-a" href="/#">Контакты</a></li>
+                        <li class="list-group-item"><a class="footer-a" href="{{url_for('shop_info')}}">О магазине</a></li>
+                        <li class="list-group-item"><a class="footer-a" href="{{url_for('shop_news')}}">Новости</a></li>
+                        <li class="list-group-item"><a class="footer-a" href="{{url_for('shop_contacts')}}">Контакты</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4 col-sm-6 col-xs-6" style="width: 224px;">
                     <div>СОЦ. СЕТИ</div>
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><a class="footer-a" href="/#">
+                        <li class="list-group-item"><a class="footer-a" href="{{url_for('redirect_links')}}">
                             <img src="https://img.icons8.com/fluency/48/000000/instagram-new.png"/>
                         </a></li>
-                        <li class="list-group-item"><a class="footer-a" href="/#">
+                        <li class="list-group-item"><a class="footer-a" href="{{url_for('redirect_links')}}">
                             <img src="https://img.icons8.com/color/48/000000/facebook.png"/>
                         </a></li>
-                        <li class="list-group-item"><a class="footer-a" href="/#">
+                        <li class="list-group-item"><a class="footer-a" href="{{url_for('redirect_links')}}">
                             <img src="https://img.icons8.com/color/48/000000/vkontakte.png"/>
                         </a></li>
                     </ul>
