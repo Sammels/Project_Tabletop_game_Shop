@@ -11,7 +11,7 @@ from werkzeug.utils import secure_filename
 from .forms import ProductForm, CategoryForm, get_category
 # Удалить потом flask_bcrypt
 from .db import db_session
-from .models import Product, Category, User, PosterImage, ShotsImage, category_product, Cart
+from .models import Product, Category, User, PosterImage, ShotsImage, category_product, Cart, ProductCart
 from .forms import LoginForm, RegisterForm
 
 
@@ -160,7 +160,6 @@ def create_app():
             user = User.query.filter(User.username == form.username.data).first()
             if user and user.check_password(form.password.data):
                 login_user(user)
-                session['user_id'] = user.id
                 flash('Успешный вход')
                 return redirect(url_for('all_product'))
         flash('Не очень успещный вход')
@@ -235,43 +234,77 @@ def create_app():
             form.stock.data = product.stock
         return render_template('update_product.html', form=form, product=product)
 
-    @app.route('/add-cart/<product_id>', methods=['GET', 'POST'])
-    @login_required
-    def add_cart(product_id):
-        user_id = session['user_id']
-        cart_user = Cart.query.filter_by(user_id=user_id, in_oder=True, for_anonymous_user=False).first()
-        if not cart_user:
-            user_cart = Cart(user_id=user_id, for_anonymous_user=False)
-            db_session.add(user_cart)
-            db_session.commit()
-        if request.method == 'POST':
-            product = Product.query.filter_by(id=product_id).first()
-            cart_user.total_product += 1
-            cart_user.total_price += product.price
-            cart_user.product.append(product)
-            session[product.name] = session.get(product.name, 0) + 1
-            db_session.commit()
-
-        return redirect(url_for("all_product"))
-
     @app.route('/cart/')
-    @login_required
     def cart():
-        user_id = session['user_id']
-        cart_user = Cart.query.filter_by(user_id=user_id, in_oder=True, for_anonymous_user=False).first()
+        user_id = current_user.get_id()
+        if not user_id:
+            user_id = request.remote_addr
+        cart_user = Cart.query.filter_by(user_id=user_id,
+                                         in_oder=True).first()
+        product_cart = getattr(cart_user, 'product', None)
+        if product_cart:
+            cart_user.total_product = sum([product.qty for product in cart_user.product])
+            cart_user.total_price = sum([product.qty * product.add_product_cart.price for product in cart_user.product])
+            db_session.commit()
+
         return render_template('cart.html', cart=cart_user)
 
-    @app.route('/delete_product_cart/<product_id>', methods=['GET', 'POST'])
-    @login_required
-    def delete_product_cart(product_id):
-        user_id = session['user_id']
-        cart_user = Cart.query.filter_by(user_id=user_id, in_oder=True, for_anonymous_user=False).first()
+    def create_cart(user_id):
+        user_cart = Cart(user_id=user_id)
+        db_session.add(user_cart)
+        db_session.commit()
+
+    @app.route('/add-cart/<int:product_id>', methods=['GET', 'POST'])
+    def add_cart(product_id):
         if request.method == 'POST':
-            product = Product.query.filter_by(id=product_id).first()
-            cart_user.total_product -= 1
-            cart_user.total_price -= product.price
-            cart_user.product.remove(product)
+            user_id = current_user.get_id()
+            if not user_id:
+                user_id = request.remote_addr
+            cart_user = Cart.query.filter_by(user_id=user_id,
+                                             in_oder=True).first()
+            if not cart_user:
+                create_cart(user_id)
+                cart_user = Cart.query.filter_by(user_id=user_id,
+                                                 in_oder=True, ).first()
+            product_cart = ProductCart.query.filter_by(product_cart=product_id, user_id=user_id).first()
+            if not product_cart:
+                add_product_cart = ProductCart(product_cart=product_id, qty=1, user_id=user_id)
+                db_session.add(add_product_cart)
+                db_session.commit()
+                product_cart = ProductCart.query.filter_by(product_cart=product_id, user_id=user_id).first()
+            else:
+                product_cart.qty += 1
+                db_session.commit()
+                product_cart = ProductCart.query.filter_by(product_cart=product_id, user_id=user_id).first()
+            cart_user.product.append(product_cart)
             db_session.commit()
+        return redirect(url_for("all_product"))
+
+    @app.route('/delete_product_cart/<int:product_id>', methods=['GET', 'POST'])
+    def delete_product_cart(product_id):
+        user_id = current_user.get_id()
+        if not user_id:
+            user_id = request.remote_addr
+        cart_user = Cart.query.filter_by(user_id=user_id, in_oder=True).first()
+        if request.method == 'POST':
+            product_cart = ProductCart.query.filter_by(user_id=user_id, product_cart=product_id).first()
+            cart_user.total_product -= product_cart.qty
+            cart_user.total_price -= product_cart.add_product_cart.price * product_cart.qty
+            cart_user.product.remove(product_cart)
+            db_session.commit()
+        return redirect('/cart')
+
+    @app.route('/change-quantity/<int:product_id>/<minusplus>', methods=['GET', 'POST'])
+    def change_quantity(product_id, minusplus):
+        user_id = current_user.get_id()
+        if not user_id:
+            user_id = request.remote_addr
+        product_cart = ProductCart.query.filter_by(user_id=user_id, product_cart=product_id).first()
+        if minusplus == 'minus':
+            product_cart.qty -= 1
+        elif minusplus == 'plus':
+            product_cart.qty += 1
+        db_session.commit()
         return redirect('/cart')
 
     return app
