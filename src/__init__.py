@@ -241,13 +241,12 @@ def create_app():
             user_id = request.remote_addr
         cart_user = Cart.query.filter_by(user_id=user_id,
                                          in_oder=True).first()
-        try:
-            if cart_user.product:
-                cart_user.total_product = sum([product.qty for product in cart_user.product])
-                cart_user.total_price = sum([product.qty * product.add_product_cart.price for product in cart_user.product])
-                db_session.commit()
-        except AttributeError:
-            pass
+        product_cart = getattr(cart_user, 'product', None)
+        if product_cart:
+            cart_user.total_product = sum([product.qty for product in cart_user.product])
+            cart_user.total_price = sum([product.qty * product.add_product_cart.price for product in cart_user.product])
+            db_session.commit()
+
         return render_template('cart.html', cart=cart_user)
 
     def create_cart(user_id):
@@ -266,7 +265,7 @@ def create_app():
             if not cart_user:
                 create_cart(user_id)
                 cart_user = Cart.query.filter_by(user_id=user_id,
-                                                 in_oder=True,).first()
+                                                 in_oder=True, ).first()
             product_cart = ProductCart.query.filter_by(product_cart=product_id, user_id=user_id).first()
             if not product_cart:
                 add_product_cart = ProductCart(product_cart=product_id, qty=1, user_id=user_id)
@@ -289,6 +288,8 @@ def create_app():
         cart_user = Cart.query.filter_by(user_id=user_id, in_oder=True).first()
         if request.method == 'POST':
             product_cart = ProductCart.query.filter_by(user_id=user_id, product_cart=product_id).first()
+            cart_user.total_product -= product_cart.qty
+            cart_user.total_price -= product_cart.add_product_cart.price * product_cart.qty
             cart_user.product.remove(product_cart)
             db_session.commit()
         return redirect('/cart')
@@ -299,13 +300,11 @@ def create_app():
         if not user_id:
             user_id = request.remote_addr
         product_cart = ProductCart.query.filter_by(user_id=user_id, product_cart=product_id).first()
-        if minusplus == '-':
+        if minusplus == 'minus':
             product_cart.qty -= 1
-        elif minusplus == '+':
+        elif minusplus == 'plus':
             product_cart.qty += 1
         db_session.commit()
         return redirect('/cart')
-
-
 
     return app
