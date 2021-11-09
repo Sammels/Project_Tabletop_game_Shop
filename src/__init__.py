@@ -103,10 +103,6 @@ def create_app():
         products = Product.query.all()
         return render_template('admin.html', products=products)
 
-    @app.route("/img/<int:img_id>")
-    def serve_img(img_id):
-        """Обработчик картинок"""
-        img = PosterImage.query.filter_by(id=img_id).first()
 
     @app.route('/admin/product-delete/<int:product_id>')
     @login_required
