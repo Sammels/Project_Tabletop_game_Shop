@@ -37,7 +37,7 @@ shots_product = Table(
 
 product_cart = Table('product_cart',
                      BDConnector.metadata,
-                     Column('product_id', Integer, ForeignKey('product.id')),
+                     Column('productcart_id', Integer, ForeignKey('productcart.id')),
                      Column('cart_id', Integer, ForeignKey('cart.id'))
                      )
 
@@ -63,7 +63,6 @@ class Product(BDConnector):
     name = Column(String(length=120), unique=True)
     title = Column(String(length=240), unique=True)
     price = Column(Integer())
-    image = Column(Integer())
     category = relationship(
         "Category", secondary=category_product, backref=backref("products", lazy=True)
     )
@@ -74,6 +73,8 @@ class Product(BDConnector):
     image_shots = relationship('ShotsImage', secondary=shots_product, cascade='all, delete-orphan', single_parent=True,
                                backref=backref('products', lazy=True, ))
     stock = Column(Boolean())
+
+    product_cart = relationship('ProductCart', backref='add_product_cart', lazy='dynamic')
 
     def __repr__(self):
         return f"Наименование игры: {self.name}"
@@ -89,7 +90,6 @@ class User(BDConnector, UserMixin):
     username = Column(String(64), nullable=False, index=True, unique=True)
     password = Column(String(255), nullable=False)
     role = Column(String(40), index=True)
-    cart = relationship('Cart', backref='user')
 
     def set_password(self, password):
         """Хеширование пароля"""
@@ -129,12 +129,21 @@ class Cart(BDConnector):
     __tablename__ = 'cart'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    product = relationship('Product', secondary=product_cart, backref=backref('cart', lazy=True))
+    user_id = Column(Integer())
     total_product = Column(Integer(), default=0)
     total_price = Column(Integer(), default=0)
     in_oder = Column(Boolean(), default=True)
-    for_anonymous_user = Column(Boolean(), default=True)
+    product = relationship('ProductCart', secondary=product_cart, cascade='all, delete-orphan',
+                           single_parent=True,
+                           backref=backref('cart', lazy=True))
+
+
+class ProductCart(BDConnector):
+    __tablename__ = 'productcart'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer())
+    product_cart = Column(Integer, ForeignKey('product.id'))
+    qty = Column(Integer(), default=0)
 
 
 # Создание БД
