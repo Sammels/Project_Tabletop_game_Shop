@@ -1,5 +1,5 @@
 import os
-from flask import Flask, flash, request, render_template, redirect, url_for, Response, session
+from flask import Flask, flash, request, render_template, redirect, url_for, Response, current_app
 from flask_login import (
     LoginManager,
     login_user,
@@ -8,21 +8,26 @@ from flask_login import (
     current_user,
 )
 from werkzeug.utils import secure_filename
-from .forms import ProductForm, CategoryForm, get_category
+from .forms import ProductForm, CategoryForm, get_category, LoginForm, RegisterForm
 # Удалить потом flask_bcrypt
-from .db import db_session
-from .models import Product, Category, User, PosterImage, ShotsImage, category_product, Cart, ProductCart
-from .forms import LoginForm, RegisterForm
+from .models import Product, Category, User, PosterImage, ShotsImage, category_product, Cart, ProductCart, db
 
 
 # Заводим Фласк
+
+
 def create_app():
     app = Flask(__name__)
+    app.config.from_pyfile('config.py')
     app.secret_key = os.urandom(512)
     login_manager = LoginManager()
     login_manager.init_app(app)
     # Присваиваем функцию для работы с логином.
     login_manager.login_view = "login"
+
+    with app.app_context():
+        db.init_app(app)
+        db.create_all()
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -35,8 +40,8 @@ def create_app():
         form = CategoryForm(request.form)
         if request.method == 'POST' and form.validate():
             category = Category(name=form.name.data)
-            db_session.add(category)
-            db_session.commit()
+            db.session.add(category)
+            db.session.commit()
             flash('Категория успешно добавлена')
             return redirect(url_for("add_category"))
         return render_template('add_category.html', form=form)
@@ -69,8 +74,8 @@ def create_app():
             for name in form.category.data:
                 category = Category.query.filter_by(name=name).all()
                 product.category.append(category[0])
-            db_session.add(product)
-            db_session.commit()
+            db.session.add(product)
+            db.session.commit()
             flash('Товар успешно добавлен')
             return redirect('/admin/add-product/')
         return render_template('add_product.html', form=form)
@@ -110,8 +115,8 @@ def create_app():
         if product is None:
             flash('Товар не найдена')
             return redirect('/admin/')
-        db_session.delete(product)
-        db_session.commit()
+        db.session.delete(product)
+        db.session.commit()
         flash('Товар успешно удален')
         return redirect('/admin/')
 
@@ -146,8 +151,8 @@ def create_app():
         if form.validate_on_submit():
             new_user = User(username=form.username.data, role="user")
             new_user.set_password(form.password.data)
-            db_session.add(new_user)
-            db_session.commit()
+            db.session.add(new_user)
+            db.session.commit()
             return redirect(url_for("all_product"))
 
         return render_template("register.html", form=form)
@@ -204,7 +209,7 @@ def create_app():
             if poster_name:
                 for image in product.image_poster:
                     image_poster_delete = PosterImage.query.filter(PosterImage.id.contains(image.id)).first()
-                    db_session.delete(image_poster_delete)
+                    db.session.delete(image_poster_delete)
                 mimetype_poster = poster.mimetype
                 img_poster = PosterImage(img=poster.read(), name=poster_name, mimetype=mimetype_poster)
                 product.image_poster.append(img_poster)
@@ -212,7 +217,7 @@ def create_app():
             if shots_all[0].filename:
                 for shot in product.image_shots:
                     image_shots_delete = ShotsImage.query.filter(ShotsImage.id.contains(shot.id)).first()
-                    db_session.delete(image_shots_delete)
+                    db.session.delete(image_shots_delete)
                 for shots in shots_all:
                     shot_name = secure_filename(shots.filename)
                     mimetype_poster = shots.mimetype
@@ -223,7 +228,7 @@ def create_app():
                 for name in form.category.data:
                     category = Category.query.filter_by(name=name).all()
                     product.category.append(category[0])
-            db_session.commit()
+            db.session.commit()
             flash('Товар успешно изменен')
             return redirect(f'/admin/update-product/{product_id}')
         elif request.method == 'GET':
@@ -245,14 +250,14 @@ def create_app():
         if product_cart:
             cart_user.total_product = sum([product.qty for product in cart_user.product])
             cart_user.total_price = sum([product.qty * product.add_product_cart.price for product in cart_user.product])
-            db_session.commit()
+            db.session.commit()
 
         return render_template('cart.html', cart=cart_user)
 
     def create_cart(user_id):
         user_cart = Cart(user_id=user_id)
-        db_session.add(user_cart)
-        db_session.commit()
+        db.session.add(user_cart)
+        db.session.commit()
 
     @app.route('/add-cart/<int:product_id>', methods=['GET', 'POST'])
     def add_cart(product_id):
@@ -269,15 +274,15 @@ def create_app():
             product_cart = ProductCart.query.filter_by(product_cart=product_id, user_id=user_id).first()
             if not product_cart:
                 add_product_cart = ProductCart(product_cart=product_id, qty=1, user_id=user_id)
-                db_session.add(add_product_cart)
-                db_session.commit()
+                db.session.add(add_product_cart)
+                db.session.commit()
                 product_cart = ProductCart.query.filter_by(product_cart=product_id, user_id=user_id).first()
             else:
                 product_cart.qty += 1
-                db_session.commit()
+                db.session.commit()
                 product_cart = ProductCart.query.filter_by(product_cart=product_id, user_id=user_id).first()
             cart_user.product.append(product_cart)
-            db_session.commit()
+            db.session.commit()
         return redirect(url_for("all_product"))
 
     @app.route('/delete_product_cart/<int:product_id>', methods=['GET', 'POST'])
@@ -291,7 +296,7 @@ def create_app():
             cart_user.total_product -= product_cart.qty
             cart_user.total_price -= product_cart.add_product_cart.price * product_cart.qty
             cart_user.product.remove(product_cart)
-            db_session.commit()
+            db.session.commit()
         return redirect('/cart')
 
     @app.route('/change-quantity/<int:product_id>/<minusplus>', methods=['GET', 'POST'])
@@ -304,7 +309,7 @@ def create_app():
             product_cart.qty -= 1
         elif minusplus == 'plus':
             product_cart.qty += 1
-        db_session.commit()
+        db.session.commit()
         return redirect('/cart')
 
     return app
