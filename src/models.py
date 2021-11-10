@@ -1,78 +1,71 @@
-from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    Text,
-    Boolean,
-    ForeignKey,
-    Table,
-    BLOB,
-)
 from sqlalchemy.orm import relationship, backref
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from .db import BDConnector, engine
+from flask_sqlalchemy import SQLAlchemy
+
+
+db = SQLAlchemy()
 
 """ Дополнительная страница для связи Многие-ко-Многим (Категории - Продукт) """
-category_product = Table(
+category_product = db.Table(
     "category_product",
-    BDConnector.metadata,
-    Column("category_id", Integer, ForeignKey("category.id")),
-    Column("product_id", Integer, ForeignKey("product.id")),
+    db.metadata,
+    db.Column("category_id", db.Integer, db.ForeignKey("category.id")),
+    db.Column("product_id", db.Integer, db.ForeignKey("product.id")),
 )
 
-poster_product = Table(
+poster_product = db.Table(
     "poster_product",
-    BDConnector.metadata,
-    Column("poster_id", Integer, ForeignKey("poster.id")),
-    Column("product_id", Integer, ForeignKey("product.id")),
+    db.metadata,
+    db.Column("poster_id", db.Integer, db.ForeignKey("poster.id")),
+    db.Column("product_id", db.Integer, db.ForeignKey("product.id")),
 )
 
-shots_product = Table(
+shots_product = db.Table(
     "shots_product",
-    BDConnector.metadata,
-    Column("shots_id", Integer, ForeignKey("shots.id")),
-    Column("product_id", Integer, ForeignKey("product.id")),
+    db.metadata,
+    db.Column("shots_id", db.Integer, db.ForeignKey("shots.id")),
+    db.Column("product_id", db.Integer, db.ForeignKey("product.id")),
 )
 
-product_cart = Table('product_cart',
-                     BDConnector.metadata,
-                     Column('productcart_id', Integer, ForeignKey('productcart.id')),
-                     Column('cart_id', Integer, ForeignKey('cart.id'))
+product_cart = db.Table('product_cart',
+                     db.metadata,
+                     db.Column('productcart_id', db.Integer, db.ForeignKey('productcart.id')),
+                     db.Column('cart_id', db.Integer, db.ForeignKey('cart.id'))
                      )
 
 
-class Category(BDConnector):
+class Category(db.Model):
     """Категории"""
 
     __tablename__ = "category"
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(length=60), unique=True)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(length=60), unique=True)
 
     def __repr__(self):
         return f"Категория: {self.name}"
 
 
-class Product(BDConnector):
+class Product(db.Model):
     """Настольная игра"""
 
     __tablename__ = "product"
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(length=120), unique=True)
-    title = Column(String(length=240), unique=True)
-    price = Column(Integer())
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(length=120), unique=True)
+    title = db.Column(db.String(length=240), unique=True)
+    price = db.Column(db.Integer())
     category = relationship(
         "Category", secondary=category_product, backref=backref("products", lazy=True)
     )
-    description = Column(Text(), unique=True)
+    description = db.Column(db.Text(), unique=True)
     image_poster = relationship('PosterImage', secondary=poster_product, cascade='all, delete-orphan',
                                 single_parent=True,
                                 backref=backref('products', lazy=True))
     image_shots = relationship('ShotsImage', secondary=shots_product, cascade='all, delete-orphan', single_parent=True,
                                backref=backref('products', lazy=True, ))
-    stock = Column(Boolean())
+    stock = db.Column(db.Boolean())
 
     product_cart = relationship('ProductCart', backref='add_product_cart', lazy='dynamic')
 
@@ -81,15 +74,15 @@ class Product(BDConnector):
 
 
 # Работа с пользователем.
-class User(BDConnector, UserMixin):
+class User(db.Model, UserMixin):
     """Пользователи"""
 
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True)
-    username = Column(String(64), nullable=False, index=True, unique=True)
-    password = Column(String(255), nullable=False)
-    role = Column(String(40), index=True)
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), nullable=False, index=True, unique=True)
+    password = db.Column(db.String(255), nullable=False)
+    role = db.Column(db.String(40), index=True)
 
     def set_password(self, password):
         """Хеширование пароля"""
@@ -107,44 +100,41 @@ class User(BDConnector, UserMixin):
         return f"<Пользователь {self.username}, Роль: {self.role}>"
 
 
-class PosterImage(BDConnector):
+class PosterImage(db.Model):
     __tablename__ = "poster"
 
-    id = Column(Integer, primary_key=True)
-    img = Column(BLOB, unique=True, nullable=False)
-    name = Column(Text, nullable=False)
-    mimetype = Column(Text, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    img = db.Column(db.BLOB, unique=True, nullable=False)
+    name = db.Column(db.Text, nullable=False)
+    mimetype = db.Column(db.Text, nullable=False)
 
 
-class ShotsImage(BDConnector):
+class ShotsImage(db.Model):
     __tablename__ = "shots"
 
-    id = Column(Integer, primary_key=True)
-    img = Column(BLOB, unique=True, nullable=False)
-    name = Column(Text, nullable=False)
-    mimetype = Column(Text, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    img = db.Column(db.BLOB, unique=True, nullable=False)
+    name = db.Column(db.Text, nullable=False)
+    mimetype = db.Column(db.Text, nullable=False)
 
 
-class Cart(BDConnector):
+class Cart(db.Model):
     __tablename__ = 'cart'
 
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer())
-    total_product = Column(Integer(), default=0)
-    total_price = Column(Integer(), default=0)
-    in_oder = Column(Boolean(), default=True)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer())
+    total_product = db.Column(db.Integer(), default=0)
+    total_price = db.Column(db.Integer(), default=0)
+    in_oder = db.Column(db.Boolean(), default=True)
     product = relationship('ProductCart', secondary=product_cart, cascade='all, delete-orphan',
                            single_parent=True,
                            backref=backref('cart', lazy=True))
 
 
-class ProductCart(BDConnector):
+class ProductCart(db.Model):
     __tablename__ = 'productcart'
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer())
-    product_cart = Column(Integer, ForeignKey('product.id'))
-    qty = Column(Integer(), default=0)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer())
+    product_cart = db.Column(db.Integer, db.ForeignKey('product.id'))
+    qty = db.Column(db.Integer(), default=0)
 
-
-# Создание БД
-BDConnector.metadata.create_all(bind=engine)
