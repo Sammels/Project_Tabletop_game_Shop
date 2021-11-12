@@ -16,7 +16,7 @@ RUN pip install  -r /requirements.txt
 
 # Copy directory
 COPY . /app
-WORKDIR app/
+WORKDIR /app/
 RUN chmod +x /app/entrypoint.sh
 
 RUN groupadd --gid=800 -r vasya && useradd --uid=800 --gid=800 --no-log-init -r vasya
