@@ -10,7 +10,8 @@ from flask_login import (
 from werkzeug.utils import secure_filename
 from .forms import ProductForm, CategoryForm, get_category, LoginForm, RegisterForm
 # Удалить потом flask_bcrypt
-from .models import Product, Category, User, PosterImage, ShotsImage, category_product, Cart, ProductCart, db
+from .models import Product, Category, User, PosterImage, ShotsImage, category_product, \
+    Cart, ProductCart, db
 
 
 # Заводим Фласк
@@ -107,7 +108,6 @@ def create_app():
     def admin():
         products = Product.query.all()
         return render_template('admin.html', products=products)
-
 
     @app.route('/admin/product-delete/<int:product_id>')
     @login_required
@@ -364,8 +364,8 @@ def create_app():
     def shop_news():
         """Новости"""
         title = "Магазинные сплетни"
-        return render_template("shop_news.html", title=title)   
-   
+        return render_template("shop_news.html", title=title)
+
     @app.route("/contact")
     def shop_contacts():
         """Новости"""
@@ -377,7 +377,6 @@ def create_app():
         """Новости"""
         title = "Куда-то"
         return render_template("redirect_to.html", title=title)
-      
 
     @app.route('/change-quantity/<int:product_id>/<minusplus>', methods=['GET', 'POST'])
     def change_quantity(product_id, minusplus):

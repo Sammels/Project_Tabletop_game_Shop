@@ -29,5 +29,8 @@ USER vasya
 
 ENTRYPOINT ["./entrypoint.sh"]
 
+
+
+
 # run the command
 CMD ["run"]
