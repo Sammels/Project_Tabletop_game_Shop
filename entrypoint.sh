@@ -1,5 +1,4 @@
 #!/bin/bash
-
 if [ -z "$1"]
     then
         echo "No arguments supplied"
@@ -9,6 +8,7 @@ elif [ "$1" = "migrate" ]
        exec export FLASK_APP=src && flask db upgrade
 elif [ "$1" = "run" ]
     then
+        python createadmin.py $VAR1 $VAR2
         exec gunicorn --bind=0.0.0.0:5000 \
                       --access-logfile - \
                       --error-logfile - \
