@@ -38,48 +38,54 @@ def create_app():
     @login_required
     def add_category():
         """Добавление категорий в БД"""
-        form = CategoryForm(request.form)
-        if request.method == 'POST' and form.validate():
-            category = Category(name=form.name.data)
-            db.session.add(category)
-            db.session.commit()
-            flash('Категория успешно добавлена')
-            return redirect(url_for("add_category"))
-        return render_template('add_category.html', form=form)
+        if current_user.is_admin():
+            form = CategoryForm(request.form)
+            if request.method == 'POST' and form.validate():
+                category = Category(name=form.name.data)
+                db.session.add(category)
+                db.session.commit()
+                flash('Категория успешно добавлена')
+                return redirect(url_for("add_category"))
+            return render_template('add_category.html', form=form)
+        else:
+            "НЕ АДМИН!!!"
 
     @app.route('/admin/add-product/', methods=['GET', 'POST'])
     @login_required
     def add_product():
         """Добавление настольной игры в БД"""
-        form = ProductForm(request.form)
-        form.category.choices = get_category()
-        if request.method == 'POST' and form.validate():
-            product = Product(name=form.name.data,
-                              title=form.title.data,
-                              price=form.price.data,
-                              description=form.description.data,
-                              stock=form.stock.data)
-            poster = request.files[form.image_poster.name]
-            poster_name = secure_filename(poster.filename)
-            mimetype_poster = poster.mimetype
-            img_poster = PosterImage(
-                img=poster.read(), name=poster_name, mimetype=mimetype_poster
-            )
-            product.image_poster.append(img_poster)
-            shots = request.files.getlist(form.image_shots.name)
-            for image in shots:
-                image_name = secure_filename(image.filename)
-                mimetype = image.mimetype
-                img = ShotsImage(img=image.read(), name=image_name, mimetype=mimetype)
-                product.image_shots.append(img)
-            for name in form.category.data:
-                category = Category.query.filter_by(name=name).all()
-                product.category.append(category[0])
-            db.session.add(product)
-            db.session.commit()
-            flash('Товар успешно добавлен')
-            return redirect('/admin/add-product/')
-        return render_template('add_product.html', form=form)
+        if current_user.is_admin():
+            form = ProductForm(request.form)
+            form.category.choices = get_category()
+            if request.method == 'POST' and form.validate():
+                product = Product(name=form.name.data,
+                                  title=form.title.data,
+                                  price=form.price.data,
+                                  description=form.description.data,
+                                  stock=form.stock.data)
+                poster = request.files[form.image_poster.name]
+                poster_name = secure_filename(poster.filename)
+                mimetype_poster = poster.mimetype
+                img_poster = PosterImage(
+                    img=poster.read(), name=poster_name, mimetype=mimetype_poster
+                )
+                product.image_poster.append(img_poster)
+                shots = request.files.getlist(form.image_shots.name)
+                for image in shots:
+                    image_name = secure_filename(image.filename)
+                    mimetype = image.mimetype
+                    img = ShotsImage(img=image.read(), name=image_name, mimetype=mimetype)
+                    product.image_shots.append(img)
+                for name in form.category.data:
+                    category = Category.query.filter_by(name=name).all()
+                    product.category.append(category[0])
+                db.session.add(product)
+                db.session.commit()
+                flash('Товар успешно добавлен')
+                return redirect('/admin/add-product/')
+            return render_template('add_product.html', form=form)
+        else:
+            "НЕ АДМИН!!!"
 
     @app.route('/')
     def all_product():
@@ -106,20 +112,26 @@ def create_app():
     @app.route('/admin/')
     @login_required
     def admin():
-        products = Product.query.all()
-        return render_template('admin.html', products=products)
+        if current_user.is_admin():
+            products = Product.query.all()
+            return render_template('admin.html', products=products)
+        else:
+            "НЕ АДМИН!!!"
 
     @app.route('/admin/product-delete/<int:product_id>')
     @login_required
     def product_delete(product_id):
-        product = Product.query.filter(Product.id.contains(product_id)).first()
-        if product is None:
-            flash('Товар не найдена')
+        if current_user.is_admin():
+            product = Product.query.filter(Product.id.contains(product_id)).first()
+            if product is None:
+                flash('Товар не найдена')
+                return redirect('/admin/')
+            db.session.delete(product)
+            db.session.commit()
+            flash('Товар успешно удален')
             return redirect('/admin/')
-        db.session.delete(product)
-        db.session.commit()
-        flash('Товар успешно удален')
-        return redirect('/admin/')
+        else:
+            "НЕ АДМИН!!!"
 
     @app.context_processor
     def all_categories():
@@ -197,49 +209,50 @@ def create_app():
     @app.route('/admin/update-product/<int:product_id>/', methods=['GET', 'POST'])
     def update_product(product_id):
         """Изменение настольной игры в БД"""
-        product = Product.query.filter(Product.id.contains(product_id)).first()
-        form = ProductForm(request.form)
-        form.category.choices = get_category()
-        if request.method == 'POST' and form.validate():
-            product.name = form.name.data
-            product.title = form.title.data
-            product.price = form.price.data
-            product.description = form.description.data
-            product.stock = form.stock.data
-            poster = request.files[form.image_poster.name]
-            poster_name = secure_filename(poster.filename)
-            if poster_name:
-                for image in product.image_poster:
-                    image_poster_delete = PosterImage.query.filter(PosterImage.id.contains(image.id)).first()
-                    db.session.delete(image_poster_delete)
-                mimetype_poster = poster.mimetype
-                img_poster = PosterImage(img=poster.read(), name=poster_name, mimetype=mimetype_poster)
-                product.image_poster.append(img_poster)
-            shots_all = request.files.getlist(form.image_shots.name)
-            if shots_all[0].filename:
-                for shot in product.image_shots:
-                    image_shots_delete = ShotsImage.query.filter(ShotsImage.id.contains(shot.id)).first()
-                    db.session.delete(image_shots_delete)
-                for shots in shots_all:
-                    shot_name = secure_filename(shots.filename)
-                    mimetype_poster = shots.mimetype
-                    img_shots = ShotsImage(img=shots.read(), name=shot_name, mimetype=mimetype_poster)
-                    product.image_shots.append(img_shots)
-            if form.category.data:
-                product.category.clear()
-                for name in form.category.data:
-                    category = Category.query.filter_by(name=name).all()
-                    product.category.append(category[0])
-            db.session.commit()
-            flash('Товар успешно изменен')
-            return redirect(f'/admin/update-product/{product_id}')
-        elif request.method == 'GET':
-            form.name.data = product.name
-            form.title.data = product.title
-            form.price.data = product.price
-            form.description.data = product.description
-            form.stock.data = product.stock
-        return render_template('update_product.html', form=form, product=product)
+        if current_user.is_admin():
+            product = Product.query.filter(Product.id.contains(product_id)).first()
+            form = ProductForm(request.form)
+            form.category.choices = get_category()
+            if request.method == 'POST' and form.validate():
+                product.name = form.name.data
+                product.title = form.title.data
+                product.price = form.price.data
+                product.description = form.description.data
+                product.stock = form.stock.data
+                poster = request.files[form.image_poster.name]
+                poster_name = secure_filename(poster.filename)
+                if poster_name:
+                    for image in product.image_poster:
+                        image_poster_delete = PosterImage.query.filter(PosterImage.id.contains(image.id)).first()
+                        db.session.delete(image_poster_delete)
+                    mimetype_poster = poster.mimetype
+                    img_poster = PosterImage(img=poster.read(), name=poster_name, mimetype=mimetype_poster)
+                    product.image_poster.append(img_poster)
+                shots_all = request.files.getlist(form.image_shots.name)
+                if shots_all[0].filename:
+                    for shot in product.image_shots:
+                        image_shots_delete = ShotsImage.query.filter(ShotsImage.id.contains(shot.id)).first()
+                        db.session.delete(image_shots_delete)
+                    for shots in shots_all:
+                        shot_name = secure_filename(shots.filename)
+                        mimetype_poster = shots.mimetype
+                        img_shots = ShotsImage(img=shots.read(), name=shot_name, mimetype=mimetype_poster)
+                        product.image_shots.append(img_shots)
+                if form.category.data:
+                    product.category.clear()
+                    for name in form.category.data:
+                        category = Category.query.filter_by(name=name).all()
+                        product.category.append(category[0])
+                db.session.commit()
+                flash('Товар успешно изменен')
+                return redirect(f'/admin/update-product/{product_id}')
+            elif request.method == 'GET':
+                form.name.data = product.name
+                form.title.data = product.title
+                form.price.data = product.price
+                form.description.data = product.description
+                form.stock.data = product.stock
+            return render_template('update_product.html', form=form, product=product)
 
     @app.route('/cart/')
     def cart():
