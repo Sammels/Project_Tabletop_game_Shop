@@ -48,7 +48,7 @@ def create_app():
                 return redirect(url_for("add_category"))
             return render_template('add_category.html', form=form)
         else:
-            "НЕ АДМИН!!!"
+            return "НЕ АДМИН!"
 
     @app.route('/admin/add-product/', methods=['GET', 'POST'])
     @login_required
@@ -85,7 +85,7 @@ def create_app():
                 return redirect('/admin/add-product/')
             return render_template('add_product.html', form=form)
         else:
-            "НЕ АДМИН!!!"
+            return "НЕ АДМИН!"
 
     @app.route('/')
     def all_product():
@@ -116,7 +116,7 @@ def create_app():
             products = Product.query.all()
             return render_template('admin.html', products=products)
         else:
-            "НЕ АДМИН!!!"
+            return "НЕ АДМИН!"
 
     @app.route('/admin/product-delete/<int:product_id>')
     @login_required
@@ -131,7 +131,7 @@ def create_app():
             flash('Товар успешно удален')
             return redirect('/admin/')
         else:
-            "НЕ АДМИН!!!"
+            return "НЕ АДМИН!"
 
     @app.context_processor
     def all_categories():
