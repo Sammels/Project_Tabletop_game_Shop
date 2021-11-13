@@ -1,17 +1,29 @@
 {% extends 'base.html' %}
 {% block content %}
 
-{% block title %}
-{{product.title}}
-{% endblock title %}
-<div class="container mt-5">
-    <h1>{{product.title}}</h1>
-    <div class="alert alert-info">
-        <h2>Наименование продукта: {{ product.name }}</h2>
-        <p>Категория продукта: {{product.category}}
-        <p>Описание продукта: {{product.description}}</p>
-        <p><b>Цена: {{product.price}} руб.</b></p>
-        <a href="#"class="btn btn-warning">В корзину</a>
-    </div>    
-</div>                        
+    {% block title %}
+        {{ product.title }}
+    {% endblock title %}
+    <div class="container mt-5">
+        <h1>{{ product.title }}</h1>
+        <div class="alert alert-info">
+            <h2>Наименование продукта: {{ product.name }}</h2>
+            <p>Категория продукта: {{ product.category }}
+            <p>Описание продукта: {{ product.description }}</p>
+            <p><b>Цена: {{ product.price }} руб.</b></p>
+            {% for image in product.image_poster %}
+                <img src="{{ url_for('serve_img', class_img='poster', img_id=image.id) }}" alt="..."
+                     class="img-thumbnail"
+                     style="width: 210px">
+            {% endfor %}
+            {% for image in product.image_shots %}
+                <img src="{{ url_for('serve_img', class_img='shot', img_id=image.id) }}" alt="..." class="img-thumbnail"
+                     style="width: 210px">
+            {% endfor %}
+            <form class="my-2" action="{{ url_for('add_cart', product_id=product.id) }}"
+                  method="post">
+                <input class="btn btn-outline-dark mt-auto" type=submit value="Добавить в корзину">
+            </form>
+        </div>
+    </div>
 {% endblock content %}
